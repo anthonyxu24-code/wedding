@@ -10,12 +10,7 @@
 
 ## Preview
 
-*Add a screenshot of your site here: drop an image as `docs/preview.png` and it will show below.*
-
-<!-- 
-Uncomment after adding docs/preview.png:
 ![Wedding site preview](docs/preview.png)
--->
 
 **What you get:**
 
@@ -75,17 +70,9 @@ Open **http://localhost:3000**. Admin: **http://localhost:3000/admin**.
 
 ---
 
-## Adding a preview image
+## Updating the preview
 
-1. Take a screenshot of your site (e.g. the hero or full scroll).
-2. Save it as **`docs/preview.png`** in this repo.
-3. In this README, uncomment the line:
-
-   ```markdown
-   ![Wedding site preview](docs/preview.png)
-   ```
-
-4. Commit and push — the image will show in the Preview section above.
+Replace **`docs/preview.png`** with a new screenshot and push — the README will show the new image.
 
 ---
 
