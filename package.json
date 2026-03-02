@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "recenter-cover": "node scripts/recenter-cover.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -22,7 +23,9 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.18",
+    "jimp": "^1.6.0",
     "postcss": "^8.4.49",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3"
   }

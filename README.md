@@ -45,6 +45,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Admin: [http://localhost:3000/admin](http://localhost:3000/admin).
 
+**If PowerShell says "running scripts is disabled":**  
+- Use **Command Prompt** (cmd) instead: open cmd, `cd C:\Users\Admin\Documents\Wedding`, then `npm run dev`.  
+- Or double‑click **`run-dev.cmd`** in this folder to start the dev server.
+
 ## Deploy (Vercel)
 
 1. Push the repo to GitHub (steps above).
