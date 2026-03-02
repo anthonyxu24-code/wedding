@@ -34,10 +34,12 @@ Wedding invitation site with RSVP and registry. Built with Next.js 14, Supabase,
 
 ## Run locally
 
+1. **Create the database table:** In [Supabase](https://supabase.com) → your project → SQL Editor, run the SQL in `supabase/schema.sql`.
+2. Copy `.env.example` to `.env` and add your Supabase keys and `ADMIN_PASSWORD` (see plan.md).
+3. Run:
+
 ```bash
 npm install
-cp .env.example .env
-# Edit .env with your Supabase and Stripe values (see plan.md)
 npm run dev
 ```
 
