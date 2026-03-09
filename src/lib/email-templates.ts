@@ -52,7 +52,7 @@ export function buildInviteEmail({ guestName, locale }: InviteEmailData): { subj
   <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
   <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto</p>
 
-  <a href="${linkUrl("/rsvp", locale)}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "立即回复 RSVP" : "RSVP Now"}</a>
+  <a href="${linkUrl("/", locale)}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "查看邀请" : "View Invitation"}</a>
 
   <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;">
     <p style="font-size:12px;color:#71717a;margin:0 0 4px;">${isZh ? "网站密码" : "Website Password"}</p>
