@@ -113,7 +113,7 @@ export function PageNav() {
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors
+                  flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] rounded-lg transition-colors active:opacity-60
                   ${
                     isActive
                       ? "text-[var(--foreground)]"
@@ -122,7 +122,7 @@ export function PageNav() {
                 `}
               >
                 <NavIcon itemKey={item.key} size={20} />
-                <span className={`text-[10px] ${isActive ? "font-medium" : ""}`}>
+                <span className={`text-[11px] ${isActive ? "font-medium" : ""}`}>
                   {lang[item.key]}
                 </span>
               </Link>

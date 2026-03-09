@@ -16,11 +16,11 @@ export default function DetailsPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
-      <div className="max-w-md md:max-w-3xl mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-3xl mx-auto py-10 px-4 animate-fade-in">
         <div className="md:grid md:grid-cols-2 md:gap-16">
           {/* Dress Code */}
           <section className="text-center mb-16 md:mb-0">
-            <h2 className="font-serif text-lg text-[var(--foreground)] mb-1">
+            <h2 className="font-serif text-xl text-[var(--foreground)] mb-1">
               {lang.attireTitle}
             </h2>
             <p className="text-sm text-[var(--muted)] mb-6">{lang.attireSubtitle}</p>
@@ -33,7 +33,7 @@ export default function DetailsPage() {
 
           {/* Itinerary */}
           <section className="text-center">
-            <h2 className="font-serif text-lg text-[var(--foreground)] mb-8">
+            <h2 className="font-serif text-xl text-[var(--foreground)] mb-8">
               {lang.itineraryTitle}
             </h2>
 

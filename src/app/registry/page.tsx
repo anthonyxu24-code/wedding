@@ -44,7 +44,7 @@ export default function RegistryPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
-      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4 animate-fade-in">
 
         <div className="text-center">
           <p className="text-sm text-[var(--muted)] leading-relaxed max-w-md mx-auto mb-8">
@@ -80,7 +80,7 @@ export default function RegistryPage() {
               />
             </div>
             {error && (
-              <p className="text-xs text-red-500 mt-2">{error}</p>
+              <p className="text-sm text-red-500 mt-2">{error}</p>
             )}
           </div>
 
@@ -91,7 +91,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_VENMO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200"
+                className="inline-flex items-center justify-center w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200"
               >
                 {lang.venmo}
               </a>
@@ -101,7 +101,7 @@ export default function RegistryPage() {
             <button
               onClick={handleCardCheckout}
               disabled={loading}
-              className="w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? lang.processing : lang.contributeCard}
             </button>
@@ -112,7 +112,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_ALIPAY_REGISTRY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200"
+                className="inline-flex items-center justify-center w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200"
               >
                 {lang.alipay}
               </a>
@@ -124,7 +124,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-md transition-all duration-200"
+                className="inline-flex items-center justify-center w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-md active:scale-[0.97] transition-all duration-200"
               >
                 {lang.giftRegistry}
               </a>

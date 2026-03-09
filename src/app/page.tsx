@@ -27,7 +27,7 @@ export default function Home() {
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
 
-      <div className="max-w-md md:max-w-2xl mx-auto py-10 px-4 flex flex-col items-center">
+      <div className="max-w-md md:max-w-2xl mx-auto py-10 px-4 flex flex-col items-center animate-fade-in">
         {/* Cover image */}
         <div className="w-full max-w-[420px] md:max-w-[560px] aspect-[3/4] relative rounded-xl overflow-hidden shadow-md">
           <Image
@@ -46,7 +46,7 @@ export default function Home() {
           <div className="mt-10 flex flex-col items-center gap-4 w-full max-w-xs">
             <Link
               href="/rsvp"
-              className="w-full py-3.5 text-center text-sm font-medium rounded-lg bg-[var(--foreground)] text-[var(--background)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+              className="w-full min-h-[44px] flex items-center justify-center text-center text-sm font-medium rounded-lg bg-[var(--foreground)] text-[var(--background)] hover:shadow-lg hover:scale-[1.02] active:scale-[0.97] transition-all duration-200"
             >
               {lang.rsvp}
             </Link>
@@ -56,7 +56,7 @@ export default function Home() {
                 try { localStorage.setItem("hasRsvped", "1"); } catch {}
                 setHasRsvped(true);
               }}
-              className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+              className="min-h-[44px] px-4 text-sm text-[var(--muted)] hover:text-[var(--foreground)] active:opacity-70 transition-colors"
             >
               {lang.alreadyRsvped}
             </button>
@@ -64,10 +64,10 @@ export default function Home() {
         ) : (
           /* Normal view for returning visitors */
           <div className="mt-8 text-center">
-            <p className="font-serif text-[var(--foreground)] text-lg">
+            <p className="font-serif text-[var(--foreground)] text-xl">
               {lang.venue}
             </p>
-            <p className="text-sm text-[var(--muted)] mt-1 max-w-md">
+            <p className="text-sm text-[var(--muted)] mt-2 max-w-md leading-relaxed">
               {address}
             </p>
             <p className="text-sm text-[var(--muted)] mt-4">

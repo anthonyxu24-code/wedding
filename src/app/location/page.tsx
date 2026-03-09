@@ -33,7 +33,7 @@ function DirectionsLink({ label }: { label: string }) {
     <button
       type="button"
       onClick={handleClick}
-      className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-all duration-200 hover:shadow-md"
+      className="inline-flex items-center justify-center w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] active:scale-[0.97] transition-all duration-200 hover:shadow-md"
     >
       {label}
     </button>
@@ -60,7 +60,7 @@ export default function LocationPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
-      <div className="max-w-md md:max-w-4xl mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-4xl mx-auto py-10 px-4 animate-fade-in">
 
         {/* Photo Carousel */}
         <section className="mb-12">
@@ -69,7 +69,7 @@ export default function LocationPage() {
 
         {/* The Venue — map + info side by side on desktop */}
         <section className="mb-12">
-          <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
+          <h2 className="font-serif text-xl text-[var(--foreground)] text-center mb-6">
             {lang.venueTitle}
           </h2>
           <div className="md:grid md:grid-cols-2 md:gap-8 md:items-start">
@@ -87,7 +87,7 @@ export default function LocationPage() {
               <p className="text-sm text-[var(--muted)] leading-relaxed mb-2">
                 {lang.venueDescription}
               </p>
-              <p className="text-xs text-[var(--muted)] mb-6">{ADDRESS}</p>
+              <p className="text-sm text-[var(--muted)] mb-6">{ADDRESS}</p>
               <DirectionsLink label={lang.getDirections} />
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function LocationPage() {
 
         {/* Getting There — side by side on desktop */}
         <section className="mb-12">
-          <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
+          <h2 className="font-serif text-xl text-[var(--foreground)] text-center mb-6">
             {lang.gettingThereTitle}
           </h2>
 
@@ -113,7 +113,7 @@ export default function LocationPage() {
 
         {/* Where to Stay — 2-column grid on desktop */}
         <section>
-          <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
+          <h2 className="font-serif text-xl text-[var(--foreground)] text-center mb-6">
             {lang.whereToStayTitle}
           </h2>
 

@@ -57,14 +57,14 @@ export default function RsvpPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
-      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4 animate-fade-in">
 
         {rsvpSubmitted ? (
           <div className="text-center py-12 text-[var(--muted)]">
-            <p className="font-serif text-[var(--foreground)] text-lg">
+            <p className="font-serif text-[var(--foreground)] text-xl">
               {lang.thankYou}
             </p>
-            <p className="text-sm mt-1">{lang.receivedResponse}</p>
+            <p className="text-sm mt-2 leading-relaxed">{lang.receivedResponse}</p>
           </div>
         ) : (
           <form onSubmit={handleRsvpSubmit} className="space-y-6">
@@ -84,7 +84,7 @@ export default function RsvpPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, primaryName: e.target.value }))
                   }
-                  className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
+                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
                   placeholder=" "
                 />
               </div>
@@ -103,7 +103,7 @@ export default function RsvpPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, email: e.target.value }))
                   }
-                  className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
+                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
                   placeholder=" "
                 />
               </div>
@@ -112,8 +112,10 @@ export default function RsvpPage() {
               <span className="block text-sm text-[var(--muted)] mb-3">
                 {lang.attending}
               </span>
-              <div className="flex gap-8">
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2.5 cursor-pointer text-sm min-h-[44px] px-4 py-2 rounded-lg border border-[var(--border)] transition-all duration-200 select-none active:scale-[0.97]"
+                  style={form.attending === true ? { borderColor: 'var(--foreground)', backgroundColor: 'var(--foreground)', color: 'var(--background)' } : {}}
+                >
                   <input
                     type="radio"
                     name="attending"
@@ -121,11 +123,13 @@ export default function RsvpPage() {
                     onChange={() =>
                       setForm((f) => ({ ...f, attending: true }))
                     }
-                    className="w-3.5 h-3.5 border border-[var(--foreground)] text-[var(--foreground)] focus:ring-0"
+                    className="sr-only"
                   />
                   {lang.yes}
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <label className="flex items-center gap-2.5 cursor-pointer text-sm min-h-[44px] px-4 py-2 rounded-lg border border-[var(--border)] transition-all duration-200 select-none active:scale-[0.97]"
+                  style={form.attending === false ? { borderColor: 'var(--foreground)', backgroundColor: 'var(--foreground)', color: 'var(--background)' } : {}}
+                >
                   <input
                     type="radio"
                     name="attending"
@@ -133,7 +137,7 @@ export default function RsvpPage() {
                     onChange={() =>
                       setForm((f) => ({ ...f, attending: false }))
                     }
-                    className="w-3.5 h-3.5 border border-[var(--foreground)] text-[var(--foreground)] focus:ring-0"
+                    className="sr-only"
                   />
                   {lang.no}
                 </label>
@@ -160,7 +164,7 @@ export default function RsvpPage() {
                         guestCount: parseInt(e.target.value, 10) || 1,
                       }))
                     }
-                    className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
                   />
                 </div>
                 <div>
@@ -177,7 +181,7 @@ export default function RsvpPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, guestNames: e.target.value }))
                     }
-                    className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
                     placeholder={lang.onePerLine}
                   />
                 </div>
@@ -197,7 +201,7 @@ export default function RsvpPage() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, message: e.target.value }))
                 }
-                className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
+                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
                 placeholder=" "
               />
             </div>
@@ -207,7 +211,7 @@ export default function RsvpPage() {
             <button
               type="submit"
               disabled={rsvpLoading}
-              className="w-full py-3 mt-4 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200 disabled:opacity-50"
+              className="w-full min-h-[44px] py-3 mt-4 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50"
             >
               {rsvpLoading ? lang.sending : lang.submit}
             </button>

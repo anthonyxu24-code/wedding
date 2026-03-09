@@ -56,3 +56,12 @@ body {
 .petal-1 { animation: petalFall1 var(--dur) var(--delay) linear infinite; }
 .petal-2 { animation: petalFall2 var(--dur) var(--delay) linear infinite; }
 .petal-3 { animation: petalFall3 var(--dur) var(--delay) linear infinite; }
+
+/* Subtle page fade-in */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeInUp 0.4s ease-out both;
+}
