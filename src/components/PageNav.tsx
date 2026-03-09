@@ -76,7 +76,7 @@ export function PageNav() {
   return (
     <>
       {/* Desktop — horizontal top bar */}
-      <nav className="hidden md:flex items-center justify-center gap-1 py-4 px-4 bg-[#fafaf9]">
+      <nav className="hidden md:flex items-center justify-center gap-1 py-4 px-4 bg-[#fafaf9]/95 backdrop-blur-sm sticky top-0 z-40">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (

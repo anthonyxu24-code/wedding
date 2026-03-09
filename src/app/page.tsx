@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useLocale } from "@/contexts/LocaleContext";
+import { PageNav } from "@/components/PageNav";
 
 const HERO_SCROLL_RANGE = 480;
 const HERO_MIN_SCALE = 0.42;
@@ -173,10 +173,10 @@ export default function Home() {
         <button
           type="button"
           onClick={() =>
-            document.getElementById("invite-section")?.scrollIntoView({ behavior: "smooth" })
+            document.getElementById("details-section")?.scrollIntoView({ behavior: "smooth" })
           }
           className="p-2 text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
-          aria-label="Scroll to RSVP and Registry"
+          aria-label="Scroll to details"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -197,8 +197,13 @@ export default function Home() {
       {/* Spacer so content starts below the fold */}
       <div className="relative z-10 min-h-[100dvh]" />
 
+      {/* Nav — sticks to top once you scroll past the hero */}
+      <div className="relative z-10">
+        <PageNav />
+      </div>
+
       {/* Details */}
-      <section className="relative z-10 py-12 px-4 border-t border-[var(--border)] bg-[#fafaf9] flex justify-center">
+      <section id="details-section" className="relative z-10 py-12 px-4 border-t border-[var(--border)] bg-[#fafaf9] flex justify-center scroll-mt-4">
         <div className="max-w-lg w-full flex flex-col items-center text-center">
           <p className="font-serif text-[var(--foreground)] text-lg">
             {lang.venue}
@@ -212,37 +217,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Navigation — RSVP, Registry, Details, Location */}
-      <section id="invite-section" className="relative z-10 py-16 px-4 bg-[#fafaf9] scroll-mt-4">
-        <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
-          <Link
-            href="/rsvp"
-            className="text-center py-4 text-sm rounded-xl bg-[var(--foreground)] text-[var(--background)] shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-          >
-            {lang.rsvp}
-          </Link>
-          <Link
-            href="/registry"
-            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-          >
-            {lang.registry}
-          </Link>
-          <Link
-            href="/details"
-            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-          >
-            {lang.details}
-          </Link>
-          <Link
-            href="/location"
-            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-          >
-            {lang.location}
-          </Link>
-        </div>
-      </section>
-
-      <footer className="relative z-10 py-10 px-4 text-center text-sm text-[var(--muted)]">
+      <footer className="relative z-10 py-10 pb-28 md:pb-10 px-4 text-center text-sm text-[var(--muted)]">
         {lang.footer}
       </footer>
     </main>
