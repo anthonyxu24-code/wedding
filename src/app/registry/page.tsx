@@ -42,7 +42,7 @@ export default function RegistryPage() {
   }
 
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
+    <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
       <div className="max-w-md md:max-w-xl mx-auto py-10 px-4">
 

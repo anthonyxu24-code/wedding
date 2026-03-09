@@ -99,7 +99,7 @@ export function PageNav() {
       </nav>
 
       {/* Mobile — sticky bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-[50] bg-[var(--background)]/95 backdrop-blur-md border-t border-[var(--border)] safe-bottom">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-[50] bg-[#fafaf9] border-t border-[var(--border)]">
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
