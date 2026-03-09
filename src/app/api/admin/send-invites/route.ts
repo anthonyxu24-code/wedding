@@ -50,6 +50,7 @@ export async function POST(request: Request) {
         });
 
         if (sendErr) {
+          console.error(`Resend error for ${guest.email}:`, sendErr);
           results.push({ id: guest.id, status: "failed", error: sendErr.message });
           continue;
         }

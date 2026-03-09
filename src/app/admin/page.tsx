@@ -172,24 +172,31 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ guestIds }),
       });
-      if (res.ok) {
-        const { results } = await res.json();
-        const sentIds = new Set(results.filter((r: { status: string }) => r.status === "sent").map((r: { id: string }) => r.id));
-        const failedNames = results
-          .filter((r: { status: string }) => r.status === "failed")
-          .map((r: { id: string }) => guests.find((g) => g.id === r.id)?.name || r.id);
-
-        setGuests((prev) =>
-          prev.map((g) =>
-            sentIds.has(g.id) ? { ...g, invite_sent: true, invite_sent_at: new Date().toISOString() } : g
-          )
-        );
-
-        if (failedNames.length > 0) {
-          alert(`Failed to send to: ${failedNames.join(", ")}`);
-        }
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Send failed: ${data.error || res.statusText}`);
+        return;
       }
-    } catch { /* ignore */ }
+      const { results } = data;
+      const sentIds = new Set(results.filter((r: { status: string }) => r.status === "sent").map((r: { id: string }) => r.id));
+      const failedEntries = results.filter((r: { status: string }) => r.status === "failed");
+
+      setGuests((prev) =>
+        prev.map((g) =>
+          sentIds.has(g.id) ? { ...g, invite_sent: true, invite_sent_at: new Date().toISOString() } : g
+        )
+      );
+
+      if (failedEntries.length > 0) {
+        const details = failedEntries.map((r: { id: string; error?: string }) => {
+          const name = guests.find((g) => g.id === r.id)?.name || r.id;
+          return `${name}: ${r.error || "unknown error"}`;
+        });
+        alert(`Failed to send:\n${details.join("\n")}`);
+      }
+    } catch (err) {
+      alert(`Network error: ${err instanceof Error ? err.message : "Could not reach server"}`);
+    }
     finally {
       setSendingIds((prev) => {
         const next = new Set(prev);
