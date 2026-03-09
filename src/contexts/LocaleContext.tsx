@@ -46,6 +46,7 @@ export const t: Record<Locale, Record<string, string>> = {
     footer: "Cindy & Anthony · April 10, 2026 · Kyoto",
     home: "Home",
     back: "Back",
+    alreadyRsvped: "I've already RSVP'd",
 
     // Details page — Attire
     attireTitle: "Dress Code",
@@ -123,6 +124,7 @@ export const t: Record<Locale, Record<string, string>> = {
     footer: "Cindy & Anthony · 2026年4月10日 · 京都",
     home: "首页",
     back: "返回",
+    alreadyRsvped: "我已经回复过了",
 
     // Details page — Attire
     attireTitle: "着装要求",

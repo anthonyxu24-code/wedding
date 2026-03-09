@@ -44,6 +44,7 @@ export default function RsvpPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not submit RSVP");
       setRsvpSubmitted(true);
+      try { localStorage.setItem("hasRsvped", "1"); } catch {}
     } catch (err) {
       setRsvpError(
         err instanceof Error ? err.message : "Something went wrong"
