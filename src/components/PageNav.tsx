@@ -75,9 +75,15 @@ export function PageNav() {
   const { lang } = useLocale();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    const reset = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    reset();
+    requestAnimationFrame(reset);
+    const t = setTimeout(reset, 50);
+    return () => clearTimeout(t);
   }, [pathname]);
 
   return (
