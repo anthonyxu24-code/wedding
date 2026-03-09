@@ -39,7 +39,8 @@ export function PhotoCarousel({ photos, interval = 4000 }: PhotoCarouselProps) {
             alt={photo.alt}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, 896px"
+            quality={90}
             priority={i === 0}
           />
         </div>
