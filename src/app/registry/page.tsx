@@ -35,7 +35,17 @@ export default function RegistryPage() {
                 {lang.contributeNotSet}
               </span>
             )}
-            {process.env.NEXT_PUBLIC_ALIPAY_REGISTRY_URL ? (
+            {process.env.NEXT_PUBLIC_VENMO_URL && (
+              <a
+                href={process.env.NEXT_PUBLIC_VENMO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+              >
+                {lang.venmo}
+              </a>
+            )}
+            {process.env.NEXT_PUBLIC_ALIPAY_REGISTRY_URL && (
               <a
                 href={process.env.NEXT_PUBLIC_ALIPAY_REGISTRY_URL}
                 target="_blank"
@@ -44,10 +54,6 @@ export default function RegistryPage() {
               >
                 {lang.alipay}
               </a>
-            ) : (
-              <span className="inline-block w-full py-3 text-sm border border-[var(--border)] text-[var(--muted)] cursor-default">
-                {lang.alipayNotSet}
-              </span>
             )}
             {process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL && (
               <a

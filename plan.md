@@ -39,7 +39,7 @@
 - Form labels: `text-sm` normal case (not all-caps/tracked). Buttons: `text-sm`, no uppercase tracking.
 - `overscroll-behavior: none` on body (no rubber-band bounce on mobile).
 
-**What's next:** (1) Stripe activation (pending approval) — update `NEXT_PUBLIC_STRIPE_REGISTRY_URL` with live Payment Link. (2) Alipay Payment Link → `NEXT_PUBLIC_ALIPAY_REGISTRY_URL`. (3) Any UI/content tweaks.
+**What's next:** (1) Alipay — deferred, will set up direct Alipay link later (not through Stripe). (2) Any UI/content tweaks.
 
 ---
 
@@ -58,6 +58,7 @@
 | Cover image updated | Done | Custom watercolour illustration |
 | Image quality fix | Done | `quality={95}`, proper `sizes` |
 | Alipay button on Registry | Done | `NEXT_PUBLIC_ALIPAY_REGISTRY_URL` |
+| Venmo button on Registry | Done | `NEXT_PUBLIC_VENMO_URL` |
 | Details page (`/details`) | Done | Attire (business formal) + itinerary |
 | Location page (`/location`) | Done | Venue, map, travel directions, where to stay |
 | Home page nav (4 buttons) | Done | RSVP, Registry, Details, Location |
@@ -67,8 +68,9 @@
 | Password gate | Done | Shared guest password via `NEXT_PUBLIC_GUEST_PASSWORD` |
 | Locale from URL param | Done | `?lang=en` / `?lang=zh` from email links |
 | Vercel deployment | Done | `cindyandanthonykyoto2026.vercel.app` |
-| Stripe activation | Pending | Waiting for Stripe approval |
-| Alipay registry link | Pending | Create after Stripe is live |
+| Stripe activation | Done | Live |
+| Venmo on registry | Done | `NEXT_PUBLIC_VENMO_URL` — no fees |
+| Alipay registry link | Deferred | Will set up direct Alipay link (not via Stripe) |
 
 ---
 
@@ -114,7 +116,8 @@ Copy `.env.example` to `.env` and fill in. Also set these in **Vercel > Settings
 - **Supabase:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - **Admin:** `ADMIN_PASSWORD` (for `/admin`)
 - **Registry:** `NEXT_PUBLIC_STRIPE_REGISTRY_URL` (Stripe Payment Link for card gifts)
-- **Alipay:** `NEXT_PUBLIC_ALIPAY_REGISTRY_URL` (Stripe Payment Link with Alipay enabled)
+- **Venmo:** `NEXT_PUBLIC_VENMO_URL` (direct Venmo profile link, no fees)
+- **Alipay:** `NEXT_PUBLIC_ALIPAY_REGISTRY_URL` (deferred — will be direct Alipay link)
 - **Email:** `RESEND_API_KEY` (from resend.com)
 - **Site URL:** `NEXT_PUBLIC_SITE_URL` (used in email links + cover image)
 - **Guest password:** `NEXT_PUBLIC_GUEST_PASSWORD` (shared password for site access)
@@ -133,9 +136,9 @@ Copy `.env.example` to `.env` and fill in. Also set these in **Vercel > Settings
 - [x] Set `ADMIN_PASSWORD` for `/admin`
 - [x] Guest password gate
 - [x] Deploy to Vercel
-- [ ] Stripe activation (waiting for approval)
-- [ ] Live Stripe Payment Link (card) → update `NEXT_PUBLIC_STRIPE_REGISTRY_URL`
-- [ ] Stripe Payment Link (Alipay) → `NEXT_PUBLIC_ALIPAY_REGISTRY_URL`
+- [x] Stripe activation
+- [x] Venmo on registry (`NEXT_PUBLIC_VENMO_URL`)
+- [ ] Alipay — set up direct link later (not via Stripe)
 
 ---
 
