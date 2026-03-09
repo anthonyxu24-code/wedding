@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const NAV_ITEMS = [
@@ -70,24 +69,15 @@ function NavIcon({ itemKey, size = 18 }: { itemKey: string; size?: number }) {
   }
 }
 
+function scrollTop() {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 export function PageNav() {
   const pathname = usePathname();
-  const router = useRouter();
   const { lang } = useLocale();
-
-  const navigate = useCallback((href: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push(href);
-    const reset = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-    reset();
-    for (const ms of [0, 50, 100, 200, 350]) {
-      setTimeout(reset, ms);
-    }
-  }, [router]);
 
   return (
     <>
@@ -99,7 +89,8 @@ export function PageNav() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={(e) => navigate(item.href, e)}
+              scroll={true}
+              onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
               className={`
                 px-4 py-2 text-sm rounded-full transition-all duration-200
                 ${
@@ -124,7 +115,8 @@ export function PageNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={(e) => navigate(item.href, e)}
+                scroll={true}
+                onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
                 className={`
                   flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] rounded-lg transition-colors active:opacity-60
                   ${
