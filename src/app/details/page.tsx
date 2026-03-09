@@ -25,9 +25,15 @@ export default function DetailsPage() {
             </h2>
             <p className="text-sm text-[var(--muted)] mb-6">{lang.attireSubtitle}</p>
 
-            <div className="space-y-4 text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
-              <p>{lang.attireMen}</p>
-              <p>{lang.attireWomen}</p>
+            <div className="space-y-5 text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-1">{lang.attireMenLabel}</p>
+                <p>{lang.attireMen}</p>
+              </div>
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-1">{lang.attireWomenLabel}</p>
+                <p>{lang.attireWomen}</p>
+              </div>
             </div>
           </section>
 
