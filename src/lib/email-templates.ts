@@ -54,6 +54,11 @@ export function buildInviteEmail({ guestName, locale }: InviteEmailData): { subj
 
   <a href="${linkUrl("/rsvp", locale)}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "立即回复 RSVP" : "RSVP Now"}</a>
 
+  <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;">
+    <p style="font-size:12px;color:#71717a;margin:0 0 4px;">${isZh ? "网站密码" : "Website Password"}</p>
+    <p style="font-size:18px;font-weight:700;color:#1c1c1c;margin:0;letter-spacing:0.5px;">Hagabooga</p>
+  </div>
+
   <hr style="${SHARED_STYLES.divider}" />
 
   <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "了解更多" : "Explore"}</p>
