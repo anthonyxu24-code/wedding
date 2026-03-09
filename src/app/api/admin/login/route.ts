@@ -21,7 +21,3 @@ export async function POST(request: Request) {
   });
   return res;
 }
-
-export function getAdminCookie() {
-  return process.env.ADMIN_PASSWORD;
-}
