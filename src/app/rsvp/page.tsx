@@ -56,7 +56,7 @@ export default function RsvpPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
       <PageNav />
-      <div className="max-w-md mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4">
 
         {rsvpSubmitted ? (
           <div className="text-center py-12 text-[var(--muted)]">
@@ -67,43 +67,45 @@ export default function RsvpPage() {
           </div>
         ) : (
           <form onSubmit={handleRsvpSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm text-[var(--muted)] mb-2"
-              >
-                {lang.yourName}
-              </label>
-              <input
-                id="name"
-                type="text"
-                required
-                value={form.primaryName}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, primaryName: e.target.value }))
-                }
-                className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
-                placeholder=" "
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm text-[var(--muted)] mb-2"
-              >
-                {lang.email}
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
-                className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
-                placeholder=" "
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm text-[var(--muted)] mb-2"
+                >
+                  {lang.yourName}
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  required
+                  value={form.primaryName}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, primaryName: e.target.value }))
+                  }
+                  className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
+                  placeholder=" "
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm text-[var(--muted)] mb-2"
+                >
+                  {lang.email}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                  className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
+                  placeholder=" "
+                />
+              </div>
             </div>
             <div>
               <span className="block text-sm text-[var(--muted)] mb-3">

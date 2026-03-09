@@ -44,10 +44,10 @@ export default function RegistryPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
       <PageNav />
-      <div className="max-w-md mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4">
 
         <div className="text-center">
-          <p className="text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto mb-8">
+          <p className="text-sm text-[var(--muted)] leading-relaxed max-w-md mx-auto mb-8">
             {lang.registryIntro}
           </p>
 
@@ -84,7 +84,7 @@ export default function RegistryPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:justify-center gap-4">
             {/* Venmo — first */}
             {process.env.NEXT_PUBLIC_VENMO_URL && (
               <a

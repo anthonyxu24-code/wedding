@@ -48,40 +48,41 @@ export default function LocationPage() {
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
       <PageNav />
-      <div className="max-w-md mx-auto py-10 px-4">
+      <div className="max-w-md md:max-w-4xl mx-auto py-10 px-4">
 
-        {/* The Venue */}
-        <section className="text-center mb-12">
-          <h2 className="font-serif text-lg text-[var(--foreground)] mb-4">
+        {/* The Venue — map + info side by side on desktop */}
+        <section className="mb-12">
+          <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
             {lang.venueTitle}
           </h2>
-          <p className="text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto mb-2">
-            {lang.venueDescription}
-          </p>
-          <p className="text-xs text-[var(--muted)] mb-6">{ADDRESS}</p>
-
-          {/* Embedded map */}
-          <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-[var(--border)] shadow-sm">
-            <iframe
-              src={EMBED_FALLBACK}
-              className="w-full h-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Four Seasons Hotel Kyoto"
-              allowFullScreen
-            />
+          <div className="md:grid md:grid-cols-2 md:gap-8 md:items-start">
+            <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-4 md:mb-0 bg-[var(--border)] shadow-sm">
+              <iframe
+                src={EMBED_FALLBACK}
+                className="w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Four Seasons Hotel Kyoto"
+                allowFullScreen
+              />
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-sm text-[var(--muted)] leading-relaxed mb-2">
+                {lang.venueDescription}
+              </p>
+              <p className="text-xs text-[var(--muted)] mb-6">{ADDRESS}</p>
+              <DirectionsLink label={lang.getDirections} />
+            </div>
           </div>
-
-          <DirectionsLink label={lang.getDirections} />
         </section>
 
-        {/* Getting There */}
+        {/* Getting There — side by side on desktop */}
         <section className="mb-12">
           <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
             {lang.gettingThereTitle}
           </h2>
 
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg bg-white/60 p-4 shadow-sm">
               <p className="text-sm font-medium text-[var(--foreground)]">{lang.fromTokyo}</p>
               <p className="text-sm text-[var(--muted)] mt-1 leading-relaxed">{lang.fromTokyoDesc}</p>
@@ -93,13 +94,13 @@ export default function LocationPage() {
           </div>
         </section>
 
-        {/* Where to Stay */}
+        {/* Where to Stay — 2-column grid on desktop */}
         <section>
           <h2 className="font-serif text-lg text-[var(--foreground)] text-center mb-6">
             {lang.whereToStayTitle}
           </h2>
 
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StayCard title={lang.stayVenue} description={lang.stayVenueDesc} />
             <StayCard title={lang.stayKyotoStation} description={lang.stayKyotoStationDesc} />
             <StayCard title={lang.stayGuesthouses} description={lang.stayGuesthousesDesc} />
