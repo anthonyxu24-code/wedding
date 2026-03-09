@@ -14,7 +14,8 @@
 **Architecture (current):**
 - `src/app/page.tsx` — Hero only. Fixed full-screen cover image (`public/cover.png`) that shrinks on scroll (Apple-style). Down-arrow button scrolls to venue details + nav buttons (RSVP, Registry, Details, Location) in a 2×2 grid. Animated falling sakura petals. Kyoto watercolour backdrop (soft blossom colour washes). `overscroll-behavior: none`. Scroll animation uses `requestAnimationFrame` + direct DOM ref updates (no React re-render per frame) to avoid mobile jitter.
 - `src/app/rsvp/page.tsx` — Standalone RSVP form page. After submit, fires confirmation email via Resend (non-blocking). Back link to home.
-- `src/app/registry/page.tsx` — Standalone Registry page. Stripe (card) + Alipay buttons, each driven by env vars. Back link to home.
+- `src/app/registry/page.tsx` — Standalone Registry page. Amount input + Venmo button + Stripe Checkout (card) button. Alipay/gift registry buttons if env vars set. Back link to home.
+- `src/app/api/checkout/route.ts` — POST: creates a Stripe Checkout Session with custom amount, returns checkout URL.
 - `src/app/details/page.tsx` — Attire (business formal: dark suit/white shirt/tie for men, formal cocktail for women) & wedding day itinerary (3 PM ceremony, 4 PM cocktail, 5 PM dinner, 8:30 PM send-off). Back link to home.
 - `src/app/location/page.tsx` — Venue info (Four Seasons Kyoto, Higashiyama), embedded Google Maps iframe, "Get Directions" button (Apple Maps on iOS, Google Maps elsewhere), travel from Tokyo (Shinkansen) and Kansai Airport (Haruka Express), where to stay (venue, Kyoto Station area, guesthouses, Osaka as budget option). Back link to home.
 - `src/app/admin/page.tsx` — Password-protected admin panel with two tabs: **RSVPs** (view/delete responses, attendance stats) and **Guest List** (add guests with EN/ZH flag, batch send invitations via Resend, per-row resend/delete, send status tracking).
@@ -39,7 +40,7 @@
 - Form labels: `text-sm` normal case (not all-caps/tracked). Buttons: `text-sm`, no uppercase tracking.
 - `overscroll-behavior: none` on body (no rubber-band bounce on mobile).
 
-**What's next:** (1) Alipay — deferred, will set up direct Alipay link later (not through Stripe). (2) Any UI/content tweaks.
+**What's next:** (1) Add `STRIPE_SECRET_KEY` to Vercel env vars. (2) Alipay — deferred, will set up direct Alipay link later. (3) Any UI/content tweaks.
 
 ---
 
@@ -50,7 +51,7 @@
 | Scaffold Next.js 14 + Tailwind | Done | |
 | Hero + shrink-on-scroll + sakura petals | Done | `public/cover.png` |
 | RSVP page (`/rsvp`) | Done | Connected to Supabase |
-| Registry page (`/registry`) | Done | Stripe + Alipay buttons |
+| Registry page (`/registry`) | Done | Amount input + Venmo + Stripe Checkout |
 | Admin page (`/admin`) | Done | Tabbed: RSVPs + Guest List |
 | Locale context (EN/中文 shared across pages) | Done | `src/contexts/LocaleContext.tsx` |
 | Mobile jitter fix (rAF + DOM refs) | Done | |
@@ -70,6 +71,7 @@
 | Vercel deployment | Done | `cindyandanthonykyoto2026.vercel.app` |
 | Stripe activation | Done | Live |
 | Venmo on registry | Done | `NEXT_PUBLIC_VENMO_URL` — no fees |
+| Registry amount input + Stripe Checkout | Done | Guests enter amount, redirected to Stripe |
 | Alipay registry link | Deferred | Will set up direct Alipay link (not via Stripe) |
 
 ---
@@ -96,6 +98,7 @@ Repo: **https://github.com/anthonyxu24-code/wedding**. Auto-deploys to Vercel on
 | Admin RSVPs API | `src/app/api/admin/rsvps/route.ts` |
 | Admin guests API | `src/app/api/admin/guests/route.ts` |
 | Send invites API | `src/app/api/admin/send-invites/route.ts` |
+| Checkout API | `src/app/api/checkout/route.ts` |
 | Email templates | `src/lib/email-templates.ts` |
 | Admin auth helper | `src/lib/admin-auth.ts` |
 | Locale context | `src/contexts/LocaleContext.tsx` |
@@ -115,7 +118,8 @@ Copy `.env.example` to `.env` and fill in. Also set these in **Vercel > Settings
 
 - **Supabase:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - **Admin:** `ADMIN_PASSWORD` (for `/admin`)
-- **Registry:** `NEXT_PUBLIC_STRIPE_REGISTRY_URL` (Stripe Payment Link for card gifts)
+- **Stripe:** `STRIPE_SECRET_KEY` (server-side, for creating Checkout Sessions)
+- **Registry:** `NEXT_PUBLIC_STRIPE_REGISTRY_URL` (Stripe Payment Link — fallback)
 - **Venmo:** `NEXT_PUBLIC_VENMO_URL` (direct Venmo profile link, no fees)
 - **Alipay:** `NEXT_PUBLIC_ALIPAY_REGISTRY_URL` (deferred — will be direct Alipay link)
 - **Email:** `RESEND_API_KEY` (from resend.com)
