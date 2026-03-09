@@ -78,14 +78,15 @@ export function PageNav() {
   const navigate = useCallback((href: string, e: React.MouseEvent) => {
     e.preventDefault();
     router.push(href);
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const reset = () => {
+      window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
-    }, 100);
+    };
+    reset();
+    for (const ms of [0, 50, 100, 200, 350]) {
+      setTimeout(reset, ms);
+    }
   }, [router]);
 
   return (
