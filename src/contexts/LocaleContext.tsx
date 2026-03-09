@@ -51,9 +51,9 @@ export const t: Record<Locale, Record<string, string>> = {
     // Details page — Attire
     attireTitle: "Dress Code",
     attireSubtitle: "Business Formal",
-    attireMenLabel: "Men",
+    attireMenLabel: "Gentlemen",
     attireMen: "Dark suit with trousers, white dress shirt, and a tie or bow tie of your choice.",
-    attireWomenLabel: "Women",
+    attireWomenLabel: "Ladies",
     attireWomen: "Formal cocktail dress or elegant evening attire.",
 
     // Details page — Itinerary
@@ -131,9 +131,9 @@ export const t: Record<Locale, Record<string, string>> = {
     // Details page — Attire
     attireTitle: "着装要求",
     attireSubtitle: "商务正装",
-    attireMenLabel: "男士",
+    attireMenLabel: "Gentlemen",
     attireMen: "深色西装搭配长裤、白色衬衫，领带或领结随意搭配。",
-    attireWomenLabel: "女士",
+    attireWomenLabel: "Ladies",
     attireWomen: "正式晚礼服或优雅的晚宴着装。",
 
     // Details page — Itinerary
