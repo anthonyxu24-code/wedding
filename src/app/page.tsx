@@ -11,15 +11,15 @@ export default function Home() {
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
       <PageNav />
 
-      <div className="max-w-md md:max-w-xl mx-auto py-10 px-4 flex flex-col items-center">
+      <div className="max-w-md md:max-w-2xl mx-auto py-10 px-4 flex flex-col items-center">
         {/* Cover image */}
-        <div className="w-full max-w-[420px] aspect-[3/4] relative rounded-xl overflow-hidden shadow-md">
+        <div className="w-full max-w-[420px] md:max-w-[560px] aspect-[3/4] relative rounded-xl overflow-hidden shadow-md">
           <Image
             src="/cover.png"
             alt="Cindy and Anthony — Four Seasons Kyoto, April 10, 2026"
             fill
             className="object-contain object-center"
-            sizes="(max-width: 768px) 90vw, 420px"
+            sizes="(max-width: 768px) 90vw, 560px"
             quality={95}
             priority
           />
