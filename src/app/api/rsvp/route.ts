@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildConfirmationEmail } from "@/lib/email-templates";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const FROM_ADDRESS = process.env.RESEND_FROM || "Cindy & Anthony <onboarding@resend.dev>";
+const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
 
 async function sendConfirmation(email: string, name: string, attending: boolean, guestCount: number) {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = process.env.SENDGRID_API_KEY;
   if (!apiKey) return;
 
   try {
-    // Look up the guest's locale from the guests table, default to "en"
+    sgMail.setApiKey(apiKey);
+
     let locale: "en" | "zh" = "en";
     try {
       const supabase = createServerSupabase();
@@ -35,8 +36,7 @@ async function sendConfirmation(email: string, name: string, attending: boolean,
       guestCount,
     });
 
-    const resend = new Resend(apiKey);
-    await resend.emails.send({ from: FROM_ADDRESS, to: email, subject, html });
+    await sgMail.send({ to: email, from: FROM_ADDRESS, subject, html });
   } catch (e) {
     console.error("Confirmation email error (non-blocking):", e);
   }
@@ -91,7 +91,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Fire-and-forget: don't block the RSVP response on email delivery
     sendConfirmation(trimmedEmail, trimmedName, isAttending, count);
 
     return NextResponse.json({ ok: true });

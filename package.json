@@ -10,11 +10,11 @@
     "recenter-cover": "node scripts/recenter-cover.cjs"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.45.0",
     "next": "14.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "resend": "^6.9.3",
     "stripe": "^17.2.0"
   },
   "devDependencies": {
