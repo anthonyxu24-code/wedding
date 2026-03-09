@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -72,6 +73,10 @@ function NavIcon({ itemKey, size = 18 }: { itemKey: string; size?: number }) {
 export function PageNav() {
   const pathname = usePathname();
   const { lang } = useLocale();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <>
