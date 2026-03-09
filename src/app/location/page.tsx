@@ -5,8 +5,8 @@ import { PageNav } from "@/components/PageNav";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
 
 const VENUE_PHOTOS = [
-  { src: "/venue-1.png", alt: "Four Seasons Hotel Kyoto — Entrance" },
   { src: "/venue-2.png", alt: "Four Seasons Hotel Kyoto — Pond Garden" },
+  { src: "/venue-1.png", alt: "Four Seasons Hotel Kyoto — Entrance" },
   { src: "/venue-3.png", alt: "Four Seasons Hotel Kyoto — Cherry Blossoms" },
   { src: "/kyoto-1.jpg", alt: "Kyoto — Fushimi Inari" },
   { src: "/venue-4.png", alt: "Kyoto — Sakura Season" },
