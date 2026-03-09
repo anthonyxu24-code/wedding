@@ -1,15 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { createServerSupabase } from "@/lib/supabase/server";
-
-const COOKIE_NAME = "admin_session";
+import { authorizeAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminPassword || token !== adminPassword) {
+  if (!(await authorizeAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -28,6 +22,32 @@ export async function GET() {
     return NextResponse.json({ rsvps: data ?? [] });
   } catch (e) {
     console.error("Admin RSVPs error:", e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  if (!(await authorizeAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: "Missing RSVP id" }, { status: 400 });
+    }
+
+    const supabase = createServerSupabase();
+    const { error } = await supabase.from("rsvps").delete().eq("id", id);
+
+    if (error) {
+      console.error("Admin RSVP delete error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("Admin RSVP delete error:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

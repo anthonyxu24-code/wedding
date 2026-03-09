@@ -1,173 +1,152 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
-
-const ADDRESS = "445-3, Myohoin Maekawa-cho, Higashiyama-ku, 605-0932 Kyoto, Japan";
-const DATE_EN = "April 10, 2026";
-const TIME_EN = "3:00 PM – 8:30 PM";
-const DATE_ZH = "2026年4月10日";
-const TIME_ZH = "下午3:00 – 8:30";
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const HERO_SCROLL_RANGE = 480;
 const HERO_MIN_SCALE = 0.42;
+const ARROW_HIDE_THRESHOLD = 280;
 
-type Tab = "rsvp" | "registry";
-type Locale = "en" | "zh";
-
-const t: Record<Locale, Record<string, string>> = {
-  en: {
-    venue: "Four Seasons Hotel Kyoto",
-    rsvp: "RSVP",
-    registry: "Registry",
-    yourName: "Your name",
-    email: "Email",
-    attending: "Attending",
-    yes: "Yes",
-    no: "No",
-    numberOfGuests: "Number of guests",
-    namesOfOtherGuests: "Names of other guests",
-    onePerLine: "One per line",
-    message: "Message",
-    submit: "Submit",
-    sending: "Sending…",
-    thankYou: "Thank you.",
-    receivedResponse: "We've received your response.",
-    registryIntro: "Your presence is our greatest gift. Should you wish to give, we welcome a contribution toward our honeymoon or a gift from the links below.",
-    contribute: "Contribute",
-    contributeNotSet: "Contribute (link not set)",
-    giftRegistry: "Gift registry",
-    footer: "Cindy & Anthony · April 10, 2026 · Kyoto",
-  },
-  zh: {
-    venue: "京都四季酒店",
-    rsvp: "回复",
-    registry: "礼品",
-    yourName: "您的姓名",
-    email: "电子邮箱",
-    attending: "是否出席",
-    yes: "是",
-    no: "否",
-    numberOfGuests: "宾客人数",
-    namesOfOtherGuests: "其他宾客姓名",
-    onePerLine: "每行一位",
-    message: "留言",
-    submit: "提交",
-    sending: "提交中…",
-    thankYou: "谢谢您。",
-    receivedResponse: "我们已收到您的回复。",
-    registryIntro: "您的莅临是我们最好的礼物。若您想送上一份心意，欢迎以礼金或以下礼品链接的方式表达。",
-    contribute: "礼金",
-    contributeNotSet: "礼金（未设置链接）",
-    giftRegistry: "礼品登记",
-    footer: "Cindy & Anthony · 2026年4月10日 · 京都",
-  },
-};
+const PETALS = [
+  { left: "8%",  kind: 1, dur: "12s", delay: "0s",    size: 12, color: "#e8a0a8" },
+  { left: "18%", kind: 2, dur: "15s", delay: "-5s",   size: 10, color: "#f0b8bc" },
+  { left: "28%", kind: 3, dur: "11s", delay: "-9s",   size: 14, color: "#e8a0a8" },
+  { left: "38%", kind: 1, dur: "17s", delay: "-3s",   size: 9,  color: "#f5c8cc" },
+  { left: "48%", kind: 2, dur: "13s", delay: "-7s",   size: 13, color: "#e08890" },
+  { left: "58%", kind: 3, dur: "16s", delay: "-1s",   size: 10, color: "#f0b8bc" },
+  { left: "68%", kind: 1, dur: "14s", delay: "-11s",  size: 15, color: "#e8a0a8" },
+  { left: "78%", kind: 2, dur: "10s", delay: "-4s",   size: 11, color: "#f5c8cc" },
+  { left: "88%", kind: 3, dur: "18s", delay: "-8s",   size: 12, color: "#e08890" },
+  { left: "13%", kind: 2, dur: "16s", delay: "-13s",  size: 9,  color: "#f0b8bc" },
+  { left: "43%", kind: 3, dur: "13s", delay: "-6s",   size: 14, color: "#e8a0a8" },
+  { left: "73%", kind: 1, dur: "11s", delay: "-10s",  size: 10, color: "#f5c8cc" },
+  { left: "93%", kind: 2, dur: "15s", delay: "-2s",   size: 13, color: "#e08890" },
+  { left: "33%", kind: 1, dur: "17s", delay: "-14s",  size: 11, color: "#f0b8bc" },
+];
 
 export default function Home() {
-  const [locale, setLocale] = useState<Locale>("en");
-  const [scrollY, setScrollY] = useState(0);
-  const [tab, setTab] = useState<Tab>("rsvp");
-  const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
-  const lang = t[locale];
-  const date = locale === "zh" ? DATE_ZH : DATE_EN;
-  const time = locale === "zh" ? TIME_ZH : TIME_EN;
+  const { lang, date, time, address } = useLocale();
+  const [showArrow, setShowArrow] = useState(true);
+
+  // Refs for direct DOM style updates — avoids React re-renders on every frame
+  const heroBgRef = useRef<HTMLDivElement>(null);
+  const posterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    let raf = 0;
+    let lastShow = true;
+
+    const tick = () => {
+      const top = Math.max(
+        window.scrollY ?? 0,
+        document.documentElement.scrollTop ?? 0,
+        document.body.scrollTop ?? 0
+      );
+
+      // Update hero background opacity directly on the DOM
+      if (heroBgRef.current) {
+        const opacity = top <= HERO_SCROLL_RANGE
+          ? 1
+          : Math.max(0, 1 - (top - HERO_SCROLL_RANGE) / 200);
+        heroBgRef.current.style.opacity = String(opacity);
+      }
+
+      // Update poster scale directly on the DOM
+      if (posterRef.current) {
+        const scale = Math.max(
+          HERO_MIN_SCALE,
+          1 - (top / HERO_SCROLL_RANGE) * (1 - HERO_MIN_SCALE)
+        );
+        posterRef.current.style.transform = `scale(${scale})`;
+      }
+
+      // Only trigger a React re-render when arrow visibility actually changes
+      const show = top < ARROW_HIDE_THRESHOLD;
+      if (show !== lastShow) {
+        setShowArrow(show);
+        lastShow = show;
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
-
-  const heroScale = Math.max(HERO_MIN_SCALE, 1 - (scrollY / HERO_SCROLL_RANGE) * (1 - HERO_MIN_SCALE));
-  const heroOpacity = Math.max(0, 1 - (scrollY - HERO_SCROLL_RANGE) / 200);
-  const [rsvpLoading, setRsvpLoading] = useState(false);
-  const [rsvpError, setRsvpError] = useState("");
-  const [form, setForm] = useState({
-    primaryName: "",
-    email: "",
-    attending: true,
-    guestCount: 1,
-    guestNames: "",
-    message: "",
-  });
-
-  async function handleRsvpSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setRsvpError("");
-    setRsvpLoading(true);
-    try {
-      const res = await fetch("/api/rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          primary_name: form.primaryName,
-          email: form.email,
-          attending: form.attending,
-          guest_count: form.guestCount,
-          guest_names: form.guestNames.trim()
-            ? form.guestNames
-                .trim()
-                .split(/\n/)
-                .map((s) => s.trim())
-                .filter(Boolean)
-            : [],
-          message: form.message || null,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Could not submit RSVP");
-      setRsvpSubmitted(true);
-    } catch (err) {
-      setRsvpError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setRsvpLoading(false);
-    }
-  }
 
   return (
     <main className="min-h-screen font-sans">
-      {/* Language toggle — top right */}
-      <div className="fixed top-4 right-4 z-[50] flex items-center gap-0 rounded border border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-sm">
-        <button
-          type="button"
-          onClick={() => setLocale("en")}
-          className="px-3 py-1.5 text-xs tracking-wide transition-colors"
-          style={{
-            color: locale === "en" ? "var(--foreground)" : "var(--muted)",
-            fontWeight: locale === "en" ? 500 : 400,
-          }}
-          aria-pressed={locale === "en"}
-        >
-          EN
-        </button>
-        <span className="text-[var(--border)]">|</span>
-        <button
-          type="button"
-          onClick={() => setLocale("zh")}
-          className="px-3 py-1.5 text-xs tracking-wide transition-colors"
-          style={{
-            color: locale === "zh" ? "var(--foreground)" : "var(--muted)",
-            fontWeight: locale === "zh" ? 500 : 400,
-          }}
-          aria-pressed={locale === "zh"}
-        >
-          中文
-        </button>
-      </div>
-
       {/* Hero — fixed, shrinks on scroll (Apple-style) */}
       <div
+        ref={heroBgRef}
         className="fixed inset-0 z-0 flex items-center justify-center bg-hero-sakura pointer-events-none"
-        style={{ opacity: scrollY <= HERO_SCROLL_RANGE ? 1 : heroOpacity }}
         aria-hidden
       >
+        {/* Soft colour washes — sky, mountains, blossom glow */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 1000 650"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden
+        >
+          <defs>
+            <filter id="f-md"><feGaussianBlur stdDeviation="16" /></filter>
+            <filter id="f-lg"><feGaussianBlur stdDeviation="28" /></filter>
+            <filter id="f-xl"><feGaussianBlur stdDeviation="42" /></filter>
+          </defs>
+          {/* Sky lavender wash */}
+          <ellipse cx="500" cy="60"  rx="700" ry="200" fill="#d8d0f0" opacity="0.28" filter="url(#f-xl)" />
+          {/* Distant mountains */}
+          <ellipse cx="500" cy="280" rx="750" ry="120" fill="#c0b8d8" opacity="0.18" filter="url(#f-xl)" />
+          <ellipse cx="200" cy="300" rx="360" ry="95"  fill="#b8b0d0" opacity="0.14" filter="url(#f-lg)" />
+          <ellipse cx="800" cy="295" rx="320" ry="90"  fill="#b8b0d0" opacity="0.13" filter="url(#f-lg)" />
+          {/* Blossom glow — center-left and center-right, visible on all screens */}
+          <ellipse cx="200" cy="370" rx="220" ry="160" fill="#f0cdd4" opacity="0.45" filter="url(#f-xl)" />
+          <ellipse cx="800" cy="360" rx="220" ry="160" fill="#f0cdd4" opacity="0.42" filter="url(#f-xl)" />
+          <ellipse cx="180" cy="340" rx="130" ry="100" fill="#fde8ec" opacity="0.4"  filter="url(#f-lg)" />
+          <ellipse cx="820" cy="335" rx="130" ry="100" fill="#fde8ec" opacity="0.38" filter="url(#f-lg)" />
+          {/* Mist */}
+          <ellipse cx="500" cy="430" rx="700" ry="65"  fill="white"  opacity="0.14" filter="url(#f-xl)" />
+          <ellipse cx="500" cy="620" rx="700" ry="90"  fill="#f5f0ea" opacity="0.35" filter="url(#f-lg)" />
+        </svg>
+
+
+        {/* Falling sakura petals */}
+        {PETALS.map((p, i) => (
+          <div
+            key={i}
+            className={`petal petal-${p.kind}`}
+            style={{
+              left: p.left,
+              "--dur": p.dur,
+              "--delay": p.delay,
+            } as React.CSSProperties}
+          >
+            <svg width={p.size} height={p.size * 1.2} viewBox="0 0 20 24" fill="none">
+              <path
+                d="M10 1 C14 1 19 5 19 10 C19 16 15 23 10 23 C5 23 1 16 1 10 C1 5 6 1 10 1Z"
+                fill={p.color}
+                opacity="0.85"
+              />
+              <path
+                d="M10 1 C10 1 10 12 10 23"
+                stroke="rgba(255,255,255,0.4)"
+                strokeWidth="0.8"
+              />
+            </svg>
+          </div>
+        ))}
         <div
-          className="relative w-full max-w-[min(720px,95vw)] aspect-[3/4] rounded-sm overflow-hidden transition-transform duration-75 ease-out"
+          ref={posterRef}
+          className="relative w-full max-w-[min(720px,95vw)] aspect-[3/4] rounded-sm overflow-hidden"
           style={{
-            transform: `scale(${heroScale})`,
+            transform: "scale(1)",
             transformOrigin: "center center",
-            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04), 0 50px 100px -20px rgba(0,0,0,0.12)",
+            willChange: "transform",
+            boxShadow:
+              "0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04), 0 50px 100px -20px rgba(0,0,0,0.12)",
           }}
         >
           <Image
@@ -175,30 +154,43 @@ export default function Home() {
             alt="Cindy and Anthony — Four Seasons Kyoto, April 10, 2026"
             fill
             className="object-contain object-center"
-            sizes="720px"
+            sizes="(max-width: 768px) 95vw, 720px"
+            quality={95}
             priority
           />
         </div>
       </div>
 
-      {/* RSVP button — fixed, just under the photo */}
+      {/* Down arrow — scroll to RSVP & Registry */}
       <div
-        className="fixed left-1/2 z-[40] -translate-x-1/2 pointer-events-auto transition-opacity duration-200"
+        className="fixed left-1/2 z-[40] -translate-x-1/2 transition-opacity duration-200"
         style={{
           bottom: "8%",
-          opacity: scrollY < HERO_SCROLL_RANGE + 150 ? 1 : 0,
-          pointerEvents: scrollY < HERO_SCROLL_RANGE + 150 ? "auto" : "none",
+          opacity: showArrow ? 1 : 0,
+          pointerEvents: showArrow ? "auto" : "none",
         }}
       >
         <button
           type="button"
-          onClick={() => {
-            setTab("rsvp");
-            document.getElementById("invite-section")?.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="px-5 py-2.5 text-xs font-medium tracking-widest uppercase text-[var(--foreground)] rounded-full shadow-none border border-[var(--foreground)]/20 bg-[var(--sakura-light)]/80 hover:bg-[var(--sakura-light)] transition-colors"
+          onClick={() =>
+            document.getElementById("invite-section")?.scrollIntoView({ behavior: "smooth" })
+          }
+          className="p-2 text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
+          aria-label="Scroll to RSVP and Registry"
         >
-          {lang.rsvp}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
         </button>
       </div>
 
@@ -208,196 +200,49 @@ export default function Home() {
       {/* Details */}
       <section className="relative z-10 py-12 px-4 border-t border-[var(--border)] bg-[#fafaf9] flex justify-center">
         <div className="max-w-lg w-full flex flex-col items-center text-center">
-          <p className="font-serif text-[var(--foreground)] text-lg">{lang.venue}</p>
-          <p className="text-sm text-[var(--muted)] mt-1 max-w-md">{ADDRESS}</p>
-          <p className="text-sm text-[var(--muted)] mt-4">{date} · {time}</p>
+          <p className="font-serif text-[var(--foreground)] text-lg">
+            {lang.venue}
+          </p>
+          <p className="text-sm text-[var(--muted)] mt-1 max-w-md">
+            {address}
+          </p>
+          <p className="text-sm text-[var(--muted)] mt-4">
+            {date} · {time}
+          </p>
         </div>
       </section>
 
-      {/* Tabs: RSVP | Registry */}
+      {/* Navigation — RSVP, Registry, Details, Location */}
       <section id="invite-section" className="relative z-10 py-16 px-4 bg-[#fafaf9] scroll-mt-4">
-        <div className="max-w-md mx-auto">
-          <div className="flex justify-center border-b border-[var(--border)] mb-10">
-            <button
-              type="button"
-              onClick={() => setTab("rsvp")}
-              className="font-serif text-sm tracking-wide px-6 py-3 -mb-px border-b-2 transition-colors"
-              style={{
-                borderColor: tab === "rsvp" ? "var(--foreground)" : "transparent",
-                color: tab === "rsvp" ? "var(--foreground)" : "var(--muted)",
-              }}
-            >
-              {lang.rsvp}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("registry")}
-              className="font-serif text-sm tracking-wide px-6 py-3 -mb-px border-b-2 transition-colors"
-              style={{
-                borderColor: tab === "registry" ? "var(--foreground)" : "transparent",
-                color: tab === "registry" ? "var(--foreground)" : "var(--muted)",
-              }}
-            >
-              {lang.registry}
-            </button>
-          </div>
-
-          {tab === "rsvp" && (
-            <div>
-              {rsvpSubmitted ? (
-                <div className="text-center py-12 text-[var(--muted)]">
-                  <p className="font-serif text-[var(--foreground)] text-lg">{lang.thankYou}</p>
-                  <p className="text-sm mt-1">{lang.receivedResponse}</p>
-                </div>
-              ) : (
-                <form onSubmit={handleRsvpSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-2">
-                      {lang.yourName}
-                    </label>
-                    <input
-                      id="name"
-                      type="text"
-                      required
-                      value={form.primaryName}
-                      onChange={(e) => setForm((f) => ({ ...f, primaryName: e.target.value }))}
-                      className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
-                      placeholder=" "
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-2">
-                      {lang.email}
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                      className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
-                      placeholder=" "
-                    />
-                  </div>
-                  <div>
-                    <span className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-3">{lang.attending}</span>
-                    <div className="flex gap-8">
-                      <label className="flex items-center gap-2 cursor-pointer text-sm">
-                        <input
-                          type="radio"
-                          name="attending"
-                          checked={form.attending === true}
-                          onChange={() => setForm((f) => ({ ...f, attending: true }))}
-                          className="w-3.5 h-3.5 border border-[var(--foreground)] text-[var(--foreground)] focus:ring-0"
-                        />
-                        {lang.yes}
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-sm">
-                        <input
-                          type="radio"
-                          name="attending"
-                          checked={form.attending === false}
-                          onChange={() => setForm((f) => ({ ...f, attending: false }))}
-                          className="w-3.5 h-3.5 border border-[var(--foreground)] text-[var(--foreground)] focus:ring-0"
-                        />
-                        {lang.no}
-                      </label>
-                    </div>
-                  </div>
-                  {form.attending && (
-                    <>
-                      <div>
-                        <label htmlFor="guestCount" className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-2">
-                          {lang.numberOfGuests}
-                        </label>
-                        <input
-                          id="guestCount"
-                          type="number"
-                          min={1}
-                          max={20}
-                          value={form.guestCount}
-                          onChange={(e) => setForm((f) => ({ ...f, guestCount: parseInt(e.target.value, 10) || 1 }))}
-                          className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="guestNames" className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-2">
-                          {lang.namesOfOtherGuests}
-                        </label>
-                        <textarea
-                          id="guestNames"
-                          rows={2}
-                          value={form.guestNames}
-                          onChange={(e) => setForm((f) => ({ ...f, guestNames: e.target.value }))}
-                          className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
-                          placeholder={lang.onePerLine}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div>
-                    <label htmlFor="message" className="block text-xs tracking-wider uppercase text-[var(--muted)] mb-2">
-                      {lang.message}
-                    </label>
-                    <textarea
-                      id="message"
-                      rows={2}
-                      value={form.message}
-                      onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                      className="w-full px-0 py-2 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors resize-none placeholder:text-zinc-400"
-                      placeholder=" "
-                    />
-                  </div>
-                  {rsvpError && <p className="text-sm text-red-600/90">{rsvpError}</p>}
-                  <button
-                    type="submit"
-                    disabled={rsvpLoading}
-                    className="w-full py-3 mt-4 text-xs tracking-widest uppercase border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors disabled:opacity-50"
-                  >
-                    {rsvpLoading ? lang.sending : lang.submit}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {tab === "registry" && (
-            <div className="text-center">
-              <p className="text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto mb-8">
-                {lang.registryIntro}
-              </p>
-              <div className="flex flex-col gap-4">
-                {process.env.NEXT_PUBLIC_STRIPE_REGISTRY_URL ? (
-                  <a
-                    href={process.env.NEXT_PUBLIC_STRIPE_REGISTRY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block w-full py-3 text-xs tracking-widest uppercase border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
-                  >
-                    {lang.contribute}
-                  </a>
-                ) : (
-                  <span className="inline-block w-full py-3 text-xs tracking-widest uppercase border border-[var(--border)] text-[var(--muted)] cursor-default">
-                    {lang.contributeNotSet}
-                  </span>
-                )}
-                {process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL && (
-                  <a
-                    href={process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block w-full py-3 text-xs tracking-widest uppercase border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
-                  >
-                    {lang.giftRegistry}
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
+          <Link
+            href="/rsvp"
+            className="text-center py-4 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+          >
+            {lang.rsvp}
+          </Link>
+          <Link
+            href="/registry"
+            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            {lang.registry}
+          </Link>
+          <Link
+            href="/details"
+            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            {lang.details}
+          </Link>
+          <Link
+            href="/location"
+            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            {lang.location}
+          </Link>
         </div>
       </section>
 
-      <footer className="relative z-10 py-10 px-4 text-center text-xs text-[var(--muted)] tracking-wide">
+      <footer className="relative z-10 py-10 px-4 text-center text-sm text-[var(--muted)]">
         {lang.footer}
       </footer>
     </main>

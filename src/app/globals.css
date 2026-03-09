@@ -15,15 +15,44 @@
 body {
   color: var(--foreground);
   background: var(--background);
+  overscroll-behavior: none;
 }
 
-/* Cherry blossom – hero only: one even wash, no spots */
+/* Kyoto spring — lavender-blush sky to warm ivory */
 .bg-hero-sakura {
   background: linear-gradient(
     180deg,
-    var(--sakura-light) 0%,
-    #fcf8f7 25%,
-    #faf8f7 60%,
+    #e2daf2 0%,
+    #ecdff0 20%,
+    #f0e6ee 45%,
+    #f3e8e8 70%,
+    #f5eeec 85%,
     #fafaf9 100%
   );
 }
+
+/* Sakura petal fall animations */
+@keyframes petalFall1 {
+  0%   { transform: translate(0,   -24px) rotate(0deg);   opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 0.7; }
+  100% { transform: translate(90px, 105vh) rotate(800deg); opacity: 0; }
+}
+@keyframes petalFall2 {
+  0%   { transform: translate(0,   -24px) rotate(30deg);   opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 0.7; }
+  100% { transform: translate(-70px, 105vh) rotate(-560deg); opacity: 0; }
+}
+@keyframes petalFall3 {
+  0%   { transform: translate(0,   -24px) rotate(15deg);  opacity: 0; }
+  6%   { opacity: 1; }
+  48%  { transform: translate(50px, 48vh) rotate(400deg); }
+  94%  { opacity: 0.6; }
+  100% { transform: translate(-10px, 105vh) rotate(680deg); opacity: 0; }
+}
+
+.petal { position: absolute; top: 0; pointer-events: none; }
+.petal-1 { animation: petalFall1 var(--dur) var(--delay) linear infinite; }
+.petal-2 { animation: petalFall2 var(--dur) var(--delay) linear infinite; }
+.petal-3 { animation: petalFall3 var(--dur) var(--delay) linear infinite; }

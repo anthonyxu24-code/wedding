@@ -38,3 +38,26 @@ create policy "No anon delete"
 
 -- Optional: allow service_role to do everything (default)
 -- Service role already bypasses RLS, so no extra policy needed.
+
+-- ============================================================
+-- Guests table (invite list managed from /admin)
+-- ============================================================
+
+create table if not exists public.guests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  locale text not null default 'en' check (locale in ('en', 'zh')),
+  invite_sent boolean not null default false,
+  invite_sent_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.guests enable row level security;
+
+-- No anonymous access at all — admin uses service_role which bypasses RLS
+create policy "No anon access to guests"
+  on public.guests for all
+  to anon
+  using (false)
+  with check (false);

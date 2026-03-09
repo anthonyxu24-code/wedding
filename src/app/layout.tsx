@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Serif_JP, Noto_Sans } from "next/font/google";
+import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 const notoSerif = Noto_Serif_JP({
@@ -34,7 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${notoSerif.variable} ${notoSans.variable}`}>
-      <body className="antialiased min-h-screen font-sans">{children}</body>
+      <body className="antialiased min-h-screen font-sans">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }
