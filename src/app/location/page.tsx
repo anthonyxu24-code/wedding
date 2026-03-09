@@ -2,6 +2,18 @@
 
 import { useLocale, ADDRESS } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
+import { PhotoCarousel } from "@/components/PhotoCarousel";
+
+const VENUE_PHOTOS = [
+  { src: "/venue-1.png", alt: "Four Seasons Hotel Kyoto — Entrance" },
+  { src: "/venue-2.png", alt: "Four Seasons Hotel Kyoto — Pond Garden" },
+  { src: "/venue-3.png", alt: "Four Seasons Hotel Kyoto — Cherry Blossoms" },
+  { src: "/kyoto-1.jpg", alt: "Kyoto — Fushimi Inari" },
+  { src: "/venue-4.png", alt: "Kyoto — Sakura Season" },
+  { src: "/venue-5.png", alt: "Four Seasons Hotel Kyoto — Garden Bridge" },
+  { src: "/kyoto-2.jpg", alt: "Kyoto — Bamboo Grove" },
+  { src: "/kyoto-3.jpg", alt: "Kyoto — Traditional Temple" },
+];
 
 const GOOGLE_MAPS_QUERY = encodeURIComponent(
   "Four Seasons Hotel Kyoto, 445-3 Myohoin Maekawa-cho, Higashiyama-ku, Kyoto"
@@ -49,6 +61,11 @@ export default function LocationPage() {
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
       <PageNav />
       <div className="max-w-md md:max-w-4xl mx-auto py-10 px-4">
+
+        {/* Photo Carousel */}
+        <section className="mb-12">
+          <PhotoCarousel photos={VENUE_PHOTOS} interval={4500} />
+        </section>
 
         {/* The Venue — map + info side by side on desktop */}
         <section className="mb-12">
