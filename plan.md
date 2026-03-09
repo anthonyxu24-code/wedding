@@ -13,16 +13,17 @@
 
 **Architecture (current):**
 - `src/app/page.tsx` — Hero only. Fixed full-screen cover image (`public/cover.png`) that shrinks on scroll (Apple-style). Down-arrow button scrolls to venue details + nav buttons (RSVP, Registry, Details, Location) in a 2×2 grid. Animated falling sakura petals. Kyoto watercolour backdrop (soft blossom colour washes). `overscroll-behavior: none`. Scroll animation uses `requestAnimationFrame` + direct DOM ref updates (no React re-render per frame) to avoid mobile jitter.
-- `src/app/rsvp/page.tsx` — Standalone RSVP form page. After submit, fires confirmation email via Resend (non-blocking). Back link to home.
-- `src/app/registry/page.tsx` — Standalone Registry page. Amount input + Venmo button + Stripe Checkout (card) button. Alipay/gift registry buttons if env vars set. Back link to home.
+- `src/app/rsvp/page.tsx` — Standalone RSVP form page. After submit, fires confirmation email via Resend (non-blocking). Shared `PageNav` for cross-page navigation.
+- `src/app/registry/page.tsx` — Standalone Registry page. Amount input + Venmo button + Stripe Checkout (card) button. Alipay/gift registry buttons if env vars set. Shared `PageNav`.
 - `src/app/api/checkout/route.ts` — POST: creates a Stripe Checkout Session with custom amount, returns checkout URL.
-- `src/app/details/page.tsx` — Attire (business formal: dark suit/white shirt/tie for men, formal cocktail for women) & wedding day itinerary (3 PM ceremony, 4 PM cocktail, 5 PM dinner, 8:30 PM send-off). Back link to home.
-- `src/app/location/page.tsx` — Venue info (Four Seasons Kyoto, Higashiyama), embedded Google Maps iframe, "Get Directions" button (Apple Maps on iOS, Google Maps elsewhere), travel from Tokyo (Shinkansen) and Kansai Airport (Haruka Express), where to stay (venue, Kyoto Station area, guesthouses, Osaka as budget option). Back link to home.
+- `src/app/details/page.tsx` — Attire (business formal: dark suit/white shirt/tie for men, formal cocktail for women) & wedding day itinerary (3 PM ceremony, 4 PM cocktail, 5 PM dinner, 8:30 PM send-off). Shared `PageNav`.
+- `src/app/location/page.tsx` — Venue info (Four Seasons Kyoto, Higashiyama), embedded Google Maps iframe, "Get Directions" button (Apple Maps on iOS, Google Maps elsewhere), travel from Tokyo (Shinkansen) and Kansai Airport (Haruka Express), where to stay (venue, Kyoto Station area, guesthouses, Osaka as budget option). Shared `PageNav`.
 - `src/app/admin/page.tsx` — Password-protected admin panel with two tabs: **RSVPs** (view/delete responses, attendance stats) and **Guest List** (add guests with EN/ZH flag, batch send invitations via Resend, per-row resend/delete, send status tracking).
 - `src/contexts/LocaleContext.tsx` — Shared locale state (EN/中文), translations, date/time, address. Reads `?lang=en` or `?lang=zh` from URL on load (for email links). Provided by `AppShell` in root layout.
 - `src/components/AppShell.tsx` — Wraps the whole app. Checks pathname — `/admin` bypasses guest gate, all other pages go through `GuestGate` → `LocaleProvider` → `LanguageToggle`.
 - `src/components/GuestGate.tsx` — Shared guest password gate. Checks `NEXT_PUBLIC_GUEST_PASSWORD`. Uses sessionStorage so guests only enter it once per session.
-- `src/components/LanguageToggle.tsx` — EN/中文 toggle fixed top-right on every page.
+- `src/components/LanguageToggle.tsx` — EN/中文 toggle fixed top-right on every page (pill shape).
+- `src/components/PageNav.tsx` — Shared responsive nav. Desktop: horizontal top bar. Mobile: sticky bottom tab bar with icons.
 - `src/lib/email-templates.ts` — Invitation email (cover image, bold title, date/venue, RSVP button, password box, secondary links) and confirmation email (thank you, RSVP summary, links to other pages). Both have EN and ZH versions. All inline-styled HTML for email client compatibility.
 - `src/lib/admin-auth.ts` — Shared admin auth helper (checks admin_session cookie).
 - `src/app/api/rsvp/route.ts` — POST: insert RSVP into Supabase, fire confirmation email via Resend (looks up guest locale from guests table).
@@ -39,6 +40,8 @@
 - Sakura petal fall animations in `globals.css` (`petalFall1/2/3`), 14 petals in `page.tsx`.
 - Form labels: `text-sm` normal case (not all-caps/tracked). Buttons: `text-sm`, no uppercase tracking.
 - `overscroll-behavior: none` on body (no rubber-band bounce on mobile).
+- Rounded corners (`rounded-lg`/`rounded-xl`) on all buttons, inputs, cards. Softer hover effects with shadow + subtle scale.
+- Location page: rounded cards for travel info and accommodation. Map container `rounded-xl` with shadow.
 
 **What's next:** (1) Add `STRIPE_SECRET_KEY` to Vercel env vars. (2) Alipay — deferred, will set up direct Alipay link later. (3) Any UI/content tweaks.
 
@@ -72,6 +75,8 @@
 | Stripe activation | Done | Live |
 | Venmo on registry | Done | `NEXT_PUBLIC_VENMO_URL` — no fees |
 | Registry amount input + Stripe Checkout | Done | Guests enter amount, redirected to Stripe |
+| Responsive PageNav | Done | Desktop top bar + mobile bottom tabs |
+| Visual polish | Done | Rounded corners, softer buttons, card-style sections, hover effects |
 | Alipay registry link | Deferred | Will set up direct Alipay link (not via Stripe) |
 
 ---
@@ -105,6 +110,7 @@ Repo: **https://github.com/anthonyxu24-code/wedding**. Auto-deploys to Vercel on
 | App shell | `src/components/AppShell.tsx` |
 | Guest gate | `src/components/GuestGate.tsx` |
 | Language toggle | `src/components/LanguageToggle.tsx` |
+| Page nav | `src/components/PageNav.tsx` |
 | Supabase server client | `src/lib/supabase/server.ts` |
 | Supabase table schema | `supabase/schema.sql` |
 | Global styles + animations | `src/app/globals.css` |

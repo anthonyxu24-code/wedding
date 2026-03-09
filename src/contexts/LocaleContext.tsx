@@ -44,6 +44,7 @@ export const t: Record<Locale, Record<string, string>> = {
     processing: "Processing…",
     giftRegistry: "Gift registry",
     footer: "Cindy & Anthony · April 10, 2026 · Kyoto",
+    home: "Home",
     back: "Back",
 
     // Details page — Attire
@@ -120,6 +121,7 @@ export const t: Record<Locale, Record<string, string>> = {
     processing: "处理中…",
     giftRegistry: "礼品登记",
     footer: "Cindy & Anthony · 2026年4月10日 · 京都",
+    home: "首页",
     back: "返回",
 
     // Details page — Attire

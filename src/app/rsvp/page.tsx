@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useLocale } from "@/contexts/LocaleContext";
+import { PageNav } from "@/components/PageNav";
 
 export default function RsvpPage() {
   const { lang } = useLocale();
@@ -54,14 +54,9 @@ export default function RsvpPage() {
   }
 
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9]">
-      <div className="max-w-md mx-auto py-16 px-4">
-        <Link
-          href="/"
-          className="inline-block text-sm text-[var(--muted)] hover:text-[var(--foreground)] mb-10"
-        >
-          ← {lang.back}
-        </Link>
+    <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
+      <PageNav />
+      <div className="max-w-md mx-auto py-10 px-4">
 
         {rsvpSubmitted ? (
           <div className="text-center py-12 text-[var(--muted)]">
@@ -209,7 +204,7 @@ export default function RsvpPage() {
             <button
               type="submit"
               disabled={rsvpLoading}
-              className="w-full py-3 mt-4 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors disabled:opacity-50"
+              className="w-full py-3 mt-4 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200 disabled:opacity-50"
             >
               {rsvpLoading ? lang.sending : lang.submit}
             </button>

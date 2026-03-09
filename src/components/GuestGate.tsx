@@ -51,7 +51,7 @@ export function GuestGate({ children }: { children: React.ReactNode }) {
           {error && <p className="text-sm text-red-600/90">{error}</p>}
           <button
             type="submit"
-            className="w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+            className="w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200"
           >
             Enter
           </button>

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useLocale, ADDRESS } from "@/contexts/LocaleContext";
+import { PageNav } from "@/components/PageNav";
 
 const GOOGLE_MAPS_QUERY = encodeURIComponent(
   "Four Seasons Hotel Kyoto, 445-3 Myohoin Maekawa-cho, Higashiyama-ku, Kyoto"
@@ -21,7 +21,7 @@ function DirectionsLink({ label }: { label: string }) {
     <button
       type="button"
       onClick={handleClick}
-      className="inline-block w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+      className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-all duration-200 hover:shadow-md"
     >
       {label}
     </button>
@@ -35,7 +35,7 @@ interface StayCardProps {
 
 function StayCard({ title, description }: StayCardProps) {
   return (
-    <div className="border-t border-[var(--border)] pt-4">
+    <div className="rounded-lg bg-white/60 p-4 shadow-sm">
       <p className="text-sm font-medium text-[var(--foreground)]">{title}</p>
       <p className="text-sm text-[var(--muted)] mt-1 leading-relaxed">{description}</p>
     </div>
@@ -46,14 +46,9 @@ export default function LocationPage() {
   const { lang } = useLocale();
 
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9]">
-      <div className="max-w-md mx-auto py-16 px-4">
-        <Link
-          href="/"
-          className="inline-block text-sm text-[var(--muted)] hover:text-[var(--foreground)] mb-10"
-        >
-          ← {lang.back}
-        </Link>
+    <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
+      <PageNav />
+      <div className="max-w-md mx-auto py-10 px-4">
 
         {/* The Venue */}
         <section className="text-center mb-12">
@@ -66,7 +61,7 @@ export default function LocationPage() {
           <p className="text-xs text-[var(--muted)] mb-6">{ADDRESS}</p>
 
           {/* Embedded map */}
-          <div className="w-full aspect-[4/3] rounded overflow-hidden mb-4 bg-[var(--border)]">
+          <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-[var(--border)] shadow-sm">
             <iframe
               src={EMBED_FALLBACK}
               className="w-full h-full border-0"
@@ -86,12 +81,12 @@ export default function LocationPage() {
             {lang.gettingThereTitle}
           </h2>
 
-          <div className="space-y-6">
-            <div>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-white/60 p-4 shadow-sm">
               <p className="text-sm font-medium text-[var(--foreground)]">{lang.fromTokyo}</p>
               <p className="text-sm text-[var(--muted)] mt-1 leading-relaxed">{lang.fromTokyoDesc}</p>
             </div>
-            <div>
+            <div className="rounded-lg bg-white/60 p-4 shadow-sm">
               <p className="text-sm font-medium text-[var(--foreground)]">{lang.fromKansai}</p>
               <p className="text-sm text-[var(--muted)] mt-1 leading-relaxed">{lang.fromKansaiDesc}</p>
             </div>
@@ -104,7 +99,7 @@ export default function LocationPage() {
             {lang.whereToStayTitle}
           </h2>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             <StayCard title={lang.stayVenue} description={lang.stayVenueDesc} />
             <StayCard title={lang.stayKyotoStation} description={lang.stayKyotoStationDesc} />
             <StayCard title={lang.stayGuesthouses} description={lang.stayGuesthousesDesc} />

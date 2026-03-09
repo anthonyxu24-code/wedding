@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useLocale } from "@/contexts/LocaleContext";
+import { PageNav } from "@/components/PageNav";
 
 const TIMELINE = [
   { time: "3:00 PM", timeZh: "下午 3:00", key: "ceremony" },
@@ -14,14 +14,9 @@ export default function DetailsPage() {
   const { lang, locale } = useLocale();
 
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9]">
-      <div className="max-w-md mx-auto py-16 px-4">
-        <Link
-          href="/"
-          className="inline-block text-sm text-[var(--muted)] hover:text-[var(--foreground)] mb-10"
-        >
-          ← {lang.back}
-        </Link>
+    <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
+      <PageNav />
+      <div className="max-w-md mx-auto py-10 px-4">
 
         {/* Dress Code */}
         <section className="text-center mb-16">

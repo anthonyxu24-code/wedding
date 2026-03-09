@@ -140,7 +140,7 @@ export default function Home() {
         ))}
         <div
           ref={posterRef}
-          className="relative w-full max-w-[min(720px,95vw)] aspect-[3/4] rounded-sm overflow-hidden"
+          className="relative w-full max-w-[min(720px,95vw)] aspect-[3/4] rounded-lg overflow-hidden"
           style={{
             transform: "scale(1)",
             transformOrigin: "center center",
@@ -217,25 +217,25 @@ export default function Home() {
         <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
           <Link
             href="/rsvp"
-            className="text-center py-4 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+            className="text-center py-4 text-sm rounded-xl bg-[var(--foreground)] text-[var(--background)] shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
           >
             {lang.rsvp}
           </Link>
           <Link
             href="/registry"
-            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
           >
             {lang.registry}
           </Link>
           <Link
             href="/details"
-            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
           >
             {lang.details}
           </Link>
           <Link
             href="/location"
-            className="text-center py-4 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+            className="text-center py-4 text-sm rounded-xl border border-[var(--border)] text-[var(--muted)] bg-white/60 shadow-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
           >
             {lang.location}
           </Link>

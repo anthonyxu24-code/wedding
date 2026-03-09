@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useLocale } from "@/contexts/LocaleContext";
+import { PageNav } from "@/components/PageNav";
 
 export default function RegistryPage() {
   const { lang } = useLocale();
@@ -42,14 +42,9 @@ export default function RegistryPage() {
   }
 
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9]">
-      <div className="max-w-md mx-auto py-16 px-4">
-        <Link
-          href="/"
-          className="inline-block text-sm text-[var(--muted)] hover:text-[var(--foreground)] mb-10"
-        >
-          ← {lang.back}
-        </Link>
+    <main className="min-h-screen font-sans bg-[#fafaf9] pb-20 md:pb-0">
+      <PageNav />
+      <div className="max-w-md mx-auto py-10 px-4">
 
         <div className="text-center">
           <p className="text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto mb-8">
@@ -57,7 +52,7 @@ export default function RegistryPage() {
           </p>
 
           {hasSuccess && (
-            <div className="mb-6 py-3 px-4 border border-green-300 bg-green-50 text-green-800 text-sm rounded">
+            <div className="mb-6 py-3 px-4 border border-green-300 bg-green-50 text-green-800 text-sm rounded-lg">
               {lang.thankYou}
             </div>
           )}
@@ -81,7 +76,7 @@ export default function RegistryPage() {
                   setError("");
                 }}
                 placeholder="0"
-                className="w-full py-3 pl-7 pr-3 text-sm text-center border border-[var(--border)] bg-white focus:border-[var(--foreground)] outline-none transition-colors"
+                className="w-full py-3 pl-7 pr-3 text-sm text-center rounded-lg border border-[var(--border)] bg-white focus:border-[var(--foreground)] outline-none transition-colors"
               />
             </div>
             {error && (
@@ -96,7 +91,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_VENMO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200"
               >
                 {lang.venmo}
               </a>
@@ -106,7 +101,7 @@ export default function RegistryPage() {
             <button
               onClick={handleCardCheckout}
               disabled={loading}
-              className="w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? lang.processing : lang.contributeCard}
             </button>
@@ -117,7 +112,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_ALIPAY_REGISTRY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors"
+                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md transition-all duration-200"
               >
                 {lang.alipay}
               </a>
@@ -129,7 +124,7 @@ export default function RegistryPage() {
                 href={process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 text-sm border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
+                className="inline-block w-full py-3 text-sm rounded-lg border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-md transition-all duration-200"
               >
                 {lang.giftRegistry}
               </a>
