@@ -41,10 +41,14 @@ export function GuestGate({ children }: { children: React.ReactNode }) {
             <p className="text-sm text-[var(--muted)]">Please enter the password to continue</p>
           </div>
           <input
-            type="password"
+            type="text"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-center text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-zinc-400"
             autoFocus
           />
