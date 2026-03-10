@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       );
     }
 
-    sendConfirmation(guest.email, guest.name, isAttending, count, guest.locale as "en" | "zh", token);
+    await sendConfirmation(guest.email, guest.name, isAttending, count, guest.locale as "en" | "zh", token);
 
     return NextResponse.json({ ok: true });
   } catch (e) {
