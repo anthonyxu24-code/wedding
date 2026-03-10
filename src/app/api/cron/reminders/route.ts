@@ -3,6 +3,8 @@ import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildReminderEmail } from "@/lib/email-templates";
 
+export const dynamic = "force-dynamic";
+
 const WEDDING_DATE = new Date("2026-04-10T00:00:00Z");
 const MILESTONES = [30, 14, 7];
 const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
