@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { authorizeAdmin } from "@/lib/admin-auth";
+import { generateToken } from "@/lib/generate-token";
 
 export async function GET() {
   if (!(await authorizeAdmin())) {
@@ -11,7 +12,7 @@ export async function GET() {
     const supabase = createServerSupabase();
     const { data, error } = await supabase
       .from("guests")
-      .select("id, name, email, locale, invite_sent, invite_sent_at, created_at")
+      .select("id, name, email, locale, rsvp_token, invite_sent, invite_sent_at, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -43,7 +44,12 @@ export async function POST(request: Request) {
     const supabase = createServerSupabase();
     const { data, error } = await supabase
       .from("guests")
-      .insert({ name: String(name).trim(), email: String(email).trim().toLowerCase(), locale: locale || "en" })
+      .insert({
+        name: String(name).trim(),
+        email: String(email).trim().toLowerCase(),
+        locale: locale || "en",
+        rsvp_token: generateToken(),
+      })
       .select()
       .single();
 

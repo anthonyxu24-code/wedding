@@ -1,39 +1,23 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildConfirmationEmail } from "@/lib/email-templates";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
 
-async function sendConfirmation(email: string, name: string, attending: boolean, guestCount: number) {
+async function sendConfirmation(email: string, name: string, attending: boolean, guestCount: number, locale: "en" | "zh", rsvpToken: string) {
   const apiKey = process.env.SENDGRID_API_KEY;
   if (!apiKey) return;
 
   try {
     sgMail.setApiKey(apiKey);
 
-    let locale: "en" | "zh" = "en";
-    try {
-      const supabase = createServerSupabase();
-      const { data } = await supabase
-        .from("guests")
-        .select("locale")
-        .eq("email", email.toLowerCase())
-        .limit(1)
-        .single();
-      if (data?.locale === "zh") locale = "zh";
-    } catch {
-      // Guest may not be in the guests table — default to EN
-    }
-
     const { subject, html } = buildConfirmationEmail({
       guestName: name,
       locale,
       attending,
       guestCount,
+      rsvpToken,
     });
 
     await sgMail.send({ to: email, from: FROM_ADDRESS, subject, html });
@@ -46,52 +30,70 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      primary_name,
-      email,
+      token,
       attending,
       guest_count = 1,
       guest_names = [],
       message,
+      address,
     } = body;
 
-    if (!primary_name || !email || typeof attending !== "boolean") {
+    if (!token || typeof attending !== "boolean") {
       return NextResponse.json(
-        { error: "Missing required fields: primary_name, email, attending" },
+        { error: "Missing required fields: token, attending" },
         { status: 400 }
       );
     }
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    const trimmedAddress = address ? String(address).trim() : "";
+    if (!trimmedAddress) {
       return NextResponse.json(
-        { error: "Server configuration error. RSVP is not available yet." },
-        { status: 503 }
+        { error: "Mailing address is required" },
+        { status: 400 }
       );
     }
 
-    const trimmedName = String(primary_name).trim();
-    const trimmedEmail = String(email).trim().toLowerCase();
+    const supabase = createServerSupabase();
+
+    const { data: guest, error: guestErr } = await supabase
+      .from("guests")
+      .select("id, name, email, locale")
+      .eq("rsvp_token", token)
+      .limit(1)
+      .single();
+
+    if (guestErr || !guest) {
+      return NextResponse.json({ error: "Invalid RSVP token" }, { status: 403 });
+    }
+
     const isAttending = !!attending;
     const count = Math.max(1, Math.min(20, Number(guest_count) || 1));
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { error } = await supabase.from("rsvps").insert({
-      primary_name: trimmedName,
-      email: trimmedEmail,
-      attending: isAttending,
-      guest_count: count,
-      guest_names: Array.isArray(guest_names) ? guest_names : [],
-      message: message ? String(message).trim() : null,
-    });
+    const { error } = await supabase
+      .from("rsvps")
+      .upsert(
+        {
+          guest_id: guest.id,
+          primary_name: guest.name,
+          email: guest.email,
+          attending: isAttending,
+          guest_count: count,
+          guest_names: Array.isArray(guest_names) ? guest_names : [],
+          message: message ? String(message).trim() : null,
+          address: trimmedAddress,
+        },
+        { onConflict: "guest_id" }
+      );
 
     if (error) {
-      console.error("RSVP insert error:", error);
+      console.error("RSVP upsert error:", error);
       return NextResponse.json(
         { error: error.message || "Could not save RSVP" },
         { status: 500 }
       );
     }
 
-    sendConfirmation(trimmedEmail, trimmedName, isAttending, count);
+    sendConfirmation(guest.email, guest.name, isAttending, count, guest.locale as "en" | "zh", token);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

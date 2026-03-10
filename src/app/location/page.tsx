@@ -15,13 +15,13 @@ const VENUE_PHOTOS = [
   { src: "/kyoto-3.jpg", alt: "Kyoto — Traditional Temple" },
 ];
 
-const GOOGLE_MAPS_QUERY = encodeURIComponent(
-  "Four Seasons Hotel Kyoto, 445-3 Myohoin Maekawa-cho, Higashiyama-ku, Kyoto"
-);
-const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${GOOGLE_MAPS_QUERY}`;
-const APPLE_MAPS_URL = `https://maps.apple.com/?q=${GOOGLE_MAPS_QUERY}`;
-const EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=&q=${GOOGLE_MAPS_QUERY}`;
-const EMBED_FALLBACK = `https://maps.google.com/maps?q=${GOOGLE_MAPS_QUERY}&output=embed`;
+const VENUE_LAT = 34.989766;
+const VENUE_LNG = 135.775972;
+const VENUE_NAME = "Four Seasons Hotel Kyoto";
+
+const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${VENUE_LAT},${VENUE_LNG}`;
+const APPLE_MAPS_URL = `https://maps.apple.com/?ll=${VENUE_LAT},${VENUE_LNG}&q=${encodeURIComponent(VENUE_NAME)}`;
+const EMBED_FALLBACK = `https://maps.google.com/maps?q=${VENUE_LAT},${VENUE_LNG}&output=embed`;
 
 function DirectionsLink({ label }: { label: string }) {
   const handleClick = () => {

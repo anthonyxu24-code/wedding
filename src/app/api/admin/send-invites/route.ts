@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const supabase = createServerSupabase();
     const { data: guests, error: fetchErr } = await supabase
       .from("guests")
-      .select("id, name, email, locale")
+      .select("id, name, email, locale, rsvp_token")
       .in("id", guestIds);
 
     if (fetchErr || !guests) {
@@ -41,6 +41,7 @@ export async function POST(request: Request) {
         const { subject, html } = buildInviteEmail({
           guestName: guest.name,
           locale: guest.locale as "en" | "zh",
+          rsvpToken: guest.rsvp_token,
         });
 
         await sgMail.send({

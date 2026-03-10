@@ -1,10 +1,67 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
+
+const WEDDING_UTC = new Date("2026-04-10T06:00:00Z").getTime();
+
+function Countdown() {
+  const { lang } = useLocale();
+  const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    setMounted(true);
+    let last = 0;
+    function tick(ts: number) {
+      if (ts - last >= 1000) {
+        setNow(Date.now());
+        last = ts;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  if (!mounted) return null;
+
+  const diff = Math.max(0, WEDDING_UTC - now);
+  if (diff === 0) return null;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  const units = [
+    { value: days, label: lang.countdownDays },
+    { value: hours, label: lang.countdownHours },
+    { value: minutes, label: lang.countdownMinutes },
+    { value: seconds, label: lang.countdownSeconds },
+  ];
+
+  return (
+    <div className="mt-8 flex justify-center gap-3 sm:gap-5">
+      {units.map((u) => (
+        <div key={u.label} className="flex flex-col items-center">
+          <span
+            className="text-2xl sm:text-3xl font-serif text-[var(--foreground)] tabular-nums w-[2.4ch] text-center"
+          >
+            {String(u.value).padStart(2, "0")}
+          </span>
+          <span className="text-[10px] sm:text-xs text-[var(--muted)] mt-1 uppercase tracking-wider">
+            {u.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const { lang, date, time, address } = useLocale();
@@ -18,7 +75,6 @@ export default function Home() {
     }
   }, []);
 
-  // Avoid flash while checking localStorage
   if (hasRsvped === null) {
     return <main className="min-h-screen bg-[#fafaf9]" />;
   }
@@ -41,9 +97,11 @@ export default function Home() {
           />
         </div>
 
+        {/* Countdown */}
+        <Countdown />
+
         {!hasRsvped ? (
-          /* RSVP-focused view for first-time visitors */
-          <div className="mt-10 flex flex-col items-center gap-4 w-full max-w-xs">
+          <div className="mt-8 flex flex-col items-center gap-4 w-full max-w-xs">
             <Link
               href="/rsvp"
               className="w-full min-h-[44px] flex items-center justify-center text-center text-sm font-medium rounded-lg bg-[var(--foreground)] text-[var(--background)] hover:shadow-lg hover:scale-[1.02] active:scale-[0.97] transition-all duration-200"
@@ -62,8 +120,7 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          /* Normal view for returning visitors */
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <p className="font-serif text-[var(--foreground)] text-xl">
               {lang.venue}
             </p>

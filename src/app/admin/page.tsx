@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 type Rsvp = {
   id: string;
@@ -10,6 +10,7 @@ type Rsvp = {
   guest_count: number;
   guest_names: string[];
   message: string | null;
+  address: string | null;
   created_at: string;
 };
 
@@ -18,6 +19,7 @@ type Guest = {
   name: string;
   email: string;
   locale: "en" | "zh";
+  rsvp_token: string;
   invite_sent: boolean;
   invite_sent_at: string | null;
   created_at: string;
@@ -43,6 +45,7 @@ export default function AdminPage() {
   const [addingGuest, setAddingGuest] = useState(false);
   const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
   const [sendAllLoading, setSendAllLoading] = useState(false);
+  const [expandedRsvp, setExpandedRsvp] = useState<string | null>(null);
 
   const fetchGuests = useCallback(async () => {
     setGuestsLoading(true);
@@ -308,33 +311,55 @@ export default function AdminPage() {
                     <th className="p-3 font-medium text-stone-700">Email</th>
                     <th className="p-3 font-medium text-stone-700">Attending</th>
                     <th className="p-3 font-medium text-stone-700">Guests</th>
-                    <th className="p-3 font-medium text-stone-700">Names</th>
-                    <th className="p-3 font-medium text-stone-700">Message</th>
                     <th className="p-3 font-medium text-stone-700">Date</th>
                     <th className="p-3 font-medium text-stone-700"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {rsvps.map((r) => (
-                    <tr key={r.id} className="border-b border-stone-100">
-                      <td className="p-3">{r.primary_name}</td>
-                      <td className="p-3">{r.email}</td>
-                      <td className="p-3">{r.attending ? "Yes" : "No"}</td>
-                      <td className="p-3">{r.guest_count ?? 1}</td>
-                      <td className="p-3 max-w-[180px] truncate">
-                        {Array.isArray(r.guest_names) && r.guest_names.length ? r.guest_names.join(", ") : "—"}
-                      </td>
-                      <td className="p-3 max-w-[160px] truncate">{r.message || "—"}</td>
-                      <td className="p-3 text-stone-500">{new Date(r.created_at).toLocaleDateString()}</td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => handleDeleteRsvp(r.id, r.primary_name)}
-                          className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
+                    <React.Fragment key={r.id}>
+                      <tr
+                        className="border-b border-stone-100 cursor-pointer hover:bg-stone-50 transition-colors"
+                        onClick={() => setExpandedRsvp(expandedRsvp === r.id ? null : r.id)}
+                      >
+                        <td className="p-3">{r.primary_name}</td>
+                        <td className="p-3">{r.email}</td>
+                        <td className="p-3">{r.attending ? "Yes" : "No"}</td>
+                        <td className="p-3">{r.guest_count ?? 1}</td>
+                        <td className="p-3 text-stone-500">{new Date(r.created_at).toLocaleDateString()}</td>
+                        <td className="p-3 flex gap-3 items-center">
+                          <span className="text-xs text-stone-400">{expandedRsvp === r.id ? "▲" : "▼"}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteRsvp(r.id, r.primary_name); }}
+                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                      {expandedRsvp === r.id && (
+                        <tr className="border-b border-stone-100 bg-stone-50/50">
+                          <td colSpan={6} className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-stone-500 text-xs mb-1">Guest names</p>
+                                <p className="text-stone-800 whitespace-pre-line">
+                                  {Array.isArray(r.guest_names) && r.guest_names.length ? r.guest_names.join("\n") : "—"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-stone-500 text-xs mb-1">Message</p>
+                                <p className="text-stone-800 whitespace-pre-line">{r.message || "—"}</p>
+                              </div>
+                              <div className="md:col-span-2">
+                                <p className="text-stone-500 text-xs mb-1">Mailing address</p>
+                                <p className="text-stone-800 whitespace-pre-line">{r.address || "—"}</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
