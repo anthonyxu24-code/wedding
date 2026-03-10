@@ -137,7 +137,7 @@ Copy `.env.example` to `.env` and fill in. Also set these in **Vercel > Settings
 - **Registry:** `NEXT_PUBLIC_STRIPE_REGISTRY_URL` (Stripe Payment Link — fallback)
 - **Venmo:** `NEXT_PUBLIC_VENMO_URL` (direct Venmo profile link, no fees)
 - **Alipay:** `NEXT_PUBLIC_ALIPAY_REGISTRY_URL` (deferred — will be direct Alipay link)
-- **Email:** `SENDGRID_API_KEY` (from sendgrid.com), `SENDGRID_FROM` (verified sender: `Cindy and Anthony <invite@cindyandanthony2026.com>`)
+- **Email:** `SENDGRID_API_KEY` (from sendgrid.com), `SENDGRID_FROM` (verified sender email)
 - **Cron:** `CRON_SECRET` (auto-set by Vercel for cron jobs)
 - **Site URL:** `NEXT_PUBLIC_SITE_URL` (`https://cindyandanthony2026.com`)
 - **Guest password:** `NEXT_PUBLIC_GUEST_PASSWORD` (shared password for site access)
@@ -170,5 +170,5 @@ Copy `.env.example` to `.env` and fill in. Also set these in **Vercel > Settings
   445-3, Myohoin Maekawa-cho, Higashiyama-ku, 605-0932 Kyoto, Japan
 - **Dress code:** Business formal
 - **Live site:** https://cindyandanthony2026.com
-- **Guest password:** Hagabooga
-- **Admin password:** Xx950925!
+- **Guest password:** _(set via `NEXT_PUBLIC_GUEST_PASSWORD` env var)_
+- **Admin password:** _(set via `ADMIN_PASSWORD` env var)_
