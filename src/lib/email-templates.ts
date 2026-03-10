@@ -53,7 +53,7 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
   <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
   <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto</p>
 
-  <a href="${linkUrl("/", locale)}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "查看邀请" : "View Invitation"}</a>
+  <a href="${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "查看邀请" : "View Invitation"}</a>
 
   <a href="${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;" target="_blank">${isZh ? "立即回复" : "RSVP Now"}</a>
 
