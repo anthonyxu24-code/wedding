@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
 
@@ -24,6 +24,7 @@ type Step = "form" | "review" | "done";
 function RsvpPageInner() {
   const { lang } = useLocale();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
   const [guest, setGuest] = useState<GuestInfo | null>(null);
@@ -32,6 +33,7 @@ function RsvpPageInner() {
 
   const [step, setStep] = useState<Step>("form");
   const [isUpdate, setIsUpdate] = useState(false);
+  const [redirectCount, setRedirectCount] = useState(5);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [rsvpError, setRsvpError] = useState("");
   const [form, setForm] = useState({
@@ -117,7 +119,18 @@ function RsvpPageInner() {
   function handleEditAgain() {
     setStep("form");
     setRsvpError("");
+    setRedirectCount(5);
   }
+
+  useEffect(() => {
+    if (step !== "done") return;
+    if (redirectCount <= 0) {
+      router.push("/");
+      return;
+    }
+    const t = setTimeout(() => setRedirectCount((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [step, redirectCount, router]);
 
   if (loadingGuest) {
     return (
@@ -166,10 +179,13 @@ function RsvpPageInner() {
             <p className="text-sm mt-2 leading-relaxed">
               {isUpdate ? lang.rsvpUpdated : lang.receivedResponse}
             </p>
+            <p className="text-xs mt-4 text-[var(--muted)]">
+              Redirecting to home in {redirectCount}s…
+            </p>
             <button
               type="button"
               onClick={handleEditAgain}
-              className="mt-6 text-sm text-[var(--muted)] underline underline-offset-4 hover:text-[var(--foreground)] transition-colors min-h-[44px]"
+              className="mt-4 text-sm text-[var(--muted)] underline underline-offset-4 hover:text-[var(--foreground)] transition-colors min-h-[44px]"
             >
               {lang.editResponse}
             </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { LanguageToggle } from "./LanguageToggle";
@@ -9,8 +9,15 @@ import { GuestGate } from "./GuestGate";
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const isAdmin = pathname.startsWith("/admin");
-  const isRsvpWithToken = pathname === "/rsvp" && !!searchParams.get("token");
+  const isRsvpWithToken = pathname === "/rsvp" && !!token;
+
+  useEffect(() => {
+    if (token) {
+      try { localStorage.setItem("rsvpToken", token); } catch {}
+    }
+  }, [token]);
 
   if (isAdmin) {
     return <>{children}</>;

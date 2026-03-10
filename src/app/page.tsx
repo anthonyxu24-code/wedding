@@ -66,10 +66,13 @@ function Countdown() {
 export default function Home() {
   const { lang, date, time, address } = useLocale();
   const [hasRsvped, setHasRsvped] = useState<boolean | null>(null);
+  const [rsvpHref, setRsvpHref] = useState("/rsvp");
 
   useEffect(() => {
     try {
       setHasRsvped(localStorage.getItem("hasRsvped") === "1");
+      const savedToken = localStorage.getItem("rsvpToken");
+      if (savedToken) setRsvpHref(`/rsvp?token=${encodeURIComponent(savedToken)}`);
     } catch {
       setHasRsvped(false);
     }
@@ -128,7 +131,7 @@ export default function Home() {
         {!hasRsvped ? (
           <div className="mt-8 flex flex-col items-center gap-4 w-full max-w-xs">
             <Link
-              href="/rsvp"
+              href={rsvpHref}
               className="w-full min-h-[44px] flex items-center justify-center text-center text-sm font-medium rounded-lg bg-[var(--foreground)] text-[var(--background)] hover:shadow-lg hover:scale-[1.02] active:scale-[0.97] transition-all duration-200"
             >
               {lang.rsvp}

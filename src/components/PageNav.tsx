@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -11,6 +12,17 @@ const NAV_ITEMS = [
   { href: "/details", key: "details" },
   { href: "/location", key: "location" },
 ] as const;
+
+function useRsvpHref() {
+  const [href, setHref] = useState("/rsvp");
+  useEffect(() => {
+    try {
+      const t = localStorage.getItem("rsvpToken");
+      if (t) setHref(`/rsvp?token=${encodeURIComponent(t)}`);
+    } catch {}
+  }, []);
+  return href;
+}
 
 function NavIcon({ itemKey, size = 18 }: { itemKey: string; size?: number }) {
   const props = {
@@ -78,6 +90,11 @@ function scrollTop() {
 export function PageNav() {
   const pathname = usePathname();
   const { lang } = useLocale();
+  const rsvpHref = useRsvpHref();
+
+  function hrefFor(item: (typeof NAV_ITEMS)[number]) {
+    return item.key === "rsvp" ? rsvpHref : item.href;
+  }
 
   return (
     <>
@@ -88,7 +105,7 @@ export function PageNav() {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={hrefFor(item)}
               scroll={true}
               onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
               className={`
@@ -114,7 +131,7 @@ export function PageNav() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={hrefFor(item)}
                 scroll={true}
                 onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
                 className={`
