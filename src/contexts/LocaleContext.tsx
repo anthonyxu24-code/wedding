@@ -216,13 +216,26 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("en");
+  const [locale, setLocaleRaw] = useState<Locale>("en");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const lang = params.get("lang");
-    if (lang === "zh" || lang === "en") setLocale(lang);
+    const urlLang = params.get("lang");
+    if (urlLang === "zh" || urlLang === "en") {
+      setLocaleRaw(urlLang);
+      try { localStorage.setItem("locale", urlLang); } catch {}
+    } else {
+      try {
+        const saved = localStorage.getItem("locale");
+        if (saved === "zh" || saved === "en") setLocaleRaw(saved);
+      } catch {}
+    }
   }, []);
+
+  function setLocale(l: Locale) {
+    setLocaleRaw(l);
+    try { localStorage.setItem("locale", l); } catch {}
+  }
 
   const value = useMemo(
     () => ({

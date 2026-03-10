@@ -148,7 +148,7 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="mt-6 text-center">
+          <div className="mt-6 flex flex-col items-center text-center">
             <p className="font-serif text-[var(--foreground)] text-xl">
               {lang.venue}
             </p>
@@ -158,6 +158,12 @@ export default function Home() {
             <p className="text-sm text-[var(--muted)] mt-4">
               {date} · {time}
             </p>
+            <Link
+              href={rsvpHref}
+              className="mt-6 text-sm text-[var(--muted)] underline underline-offset-4 hover:text-[var(--foreground)] transition-colors min-h-[44px] flex items-center"
+            >
+              {lang.editResponse}
+            </Link>
           </div>
         )}
       </div>
