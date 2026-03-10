@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
@@ -35,6 +35,7 @@ function RsvpPageInner() {
   const [isUpdate, setIsUpdate] = useState(false);
   const [redirectCount, setRedirectCount] = useState(5);
   const [rsvpLoading, setRsvpLoading] = useState(false);
+  const submittingRef = useRef(false);
   const [rsvpError, setRsvpError] = useState("");
   const [form, setForm] = useState({
     attending: true,
@@ -81,6 +82,8 @@ function RsvpPageInner() {
   }
 
   async function handleConfirmSubmit() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setRsvpError("");
     setRsvpLoading(true);
     try {
@@ -113,6 +116,7 @@ function RsvpPageInner() {
       );
     } finally {
       setRsvpLoading(false);
+      submittingRef.current = false;
     }
   }
 
