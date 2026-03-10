@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
@@ -21,7 +21,7 @@ type ExistingRsvp = {
 
 type Step = "form" | "review" | "done";
 
-export default function RsvpPage() {
+function RsvpPageInner() {
   const { lang } = useLocale();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -421,5 +421,13 @@ export default function RsvpPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function RsvpPage() {
+  return (
+    <Suspense>
+      <RsvpPageInner />
+    </Suspense>
   );
 }
