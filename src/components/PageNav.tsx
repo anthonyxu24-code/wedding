@@ -24,6 +24,16 @@ function useRsvpHref() {
   return href;
 }
 
+function useHasRsvped() {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    try { setDone(localStorage.getItem("hasRsvped") === "1"); } catch {}
+  }, []);
+  return done;
+}
+
+const LOCKED_KEYS = new Set(["registry", "details", "location"]);
+
 function NavIcon({ itemKey, size = 18 }: { itemKey: string; size?: number }) {
   const props = {
     width: size,
@@ -91,9 +101,16 @@ export function PageNav() {
   const pathname = usePathname();
   const { lang } = useLocale();
   const rsvpHref = useRsvpHref();
+  const hasRsvped = useHasRsvped();
 
   function hrefFor(item: (typeof NAV_ITEMS)[number]) {
-    return item.key === "rsvp" ? rsvpHref : item.href;
+    if (item.key === "rsvp") return rsvpHref;
+    if (!hasRsvped && LOCKED_KEYS.has(item.key)) return "#";
+    return item.href;
+  }
+
+  function isLocked(item: (typeof NAV_ITEMS)[number]) {
+    return !hasRsvped && LOCKED_KEYS.has(item.key);
   }
 
   return (
@@ -101,21 +118,25 @@ export function PageNav() {
       {/* Desktop — horizontal top bar */}
       <nav className="hidden md:flex items-center justify-center gap-1 py-4 px-4 bg-[#fafaf9]/95 backdrop-blur-sm sticky top-0 z-40">
         {NAV_ITEMS.map((item) => {
+          const locked = isLocked(item);
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={hrefFor(item)}
               scroll={true}
-              onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
+              onClick={(e) => { if (locked) { e.preventDefault(); return; } scrollTop(); setTimeout(scrollTop, 150); }}
               className={`
                 px-4 py-2 text-sm rounded-full transition-all duration-200
-                ${
-                  isActive
+                ${locked
+                  ? "text-[var(--border)] cursor-default"
+                  : isActive
                     ? "bg-[var(--foreground)] text-[var(--background)] font-medium"
                     : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/5"
                 }
               `}
+              aria-disabled={locked}
+              tabIndex={locked ? -1 : undefined}
             >
               {lang[item.key]}
             </Link>
@@ -127,24 +148,28 @@ export function PageNav() {
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-[50] bg-[#fafaf9] border-t border-[var(--border)]">
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {NAV_ITEMS.map((item) => {
+            const locked = isLocked(item);
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={hrefFor(item)}
                 scroll={true}
-                onClick={() => { scrollTop(); setTimeout(scrollTop, 150); }}
+                onClick={(e) => { if (locked) { e.preventDefault(); return; } scrollTop(); setTimeout(scrollTop, 150); }}
                 className={`
-                  flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] rounded-lg transition-colors active:opacity-60
-                  ${
-                    isActive
-                      ? "text-[var(--foreground)]"
-                      : "text-[var(--muted)]"
+                  flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] rounded-lg transition-colors
+                  ${locked
+                    ? "text-[var(--border)] cursor-default"
+                    : isActive
+                      ? "text-[var(--foreground)] active:opacity-60"
+                      : "text-[var(--muted)] active:opacity-60"
                   }
                 `}
+                aria-disabled={locked}
+                tabIndex={locked ? -1 : undefined}
               >
                 <NavIcon itemKey={item.key} size={20} />
-                <span className={`text-[11px] ${isActive ? "font-medium" : ""}`}>
+                <span className={`text-[11px] ${isActive && !locked ? "font-medium" : ""}`}>
                   {lang[item.key]}
                 </span>
               </Link>
