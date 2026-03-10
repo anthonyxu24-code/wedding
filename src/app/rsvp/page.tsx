@@ -36,7 +36,7 @@ function RsvpPageInner() {
   const [rsvpError, setRsvpError] = useState("");
   const [form, setForm] = useState({
     attending: true,
-    guestCount: 1,
+    guestCount: "1",
     guestNames: "",
     message: "",
     address: "",
@@ -60,7 +60,7 @@ function RsvpPageInner() {
           setIsUpdate(true);
           setForm({
             attending: data.rsvp.attending,
-            guestCount: data.rsvp.guest_count,
+            guestCount: String(data.rsvp.guest_count),
             guestNames: Array.isArray(data.rsvp.guest_names)
               ? data.rsvp.guest_names.join("\n")
               : "",
@@ -88,7 +88,7 @@ function RsvpPageInner() {
         body: JSON.stringify({
           token,
           attending: form.attending,
-          guest_count: form.guestCount,
+          guest_count: parseInt(form.guestCount, 10) || 1,
           guest_names: form.guestNames.trim()
             ? form.guestNames
                 .trim()
@@ -343,8 +343,19 @@ function RsvpPageInner() {
                     onChange={(e) =>
                       setForm((f) => ({
                         ...f,
-                        guestCount: parseInt(e.target.value, 10) || 1,
+                        guestCount: e.target.value,
                       }))
+                    }
+                    onBlur={() =>
+                      setForm((f) => {
+                        const n = parseInt(f.guestCount, 10);
+                        return {
+                          ...f,
+                          guestCount: String(
+                            isNaN(n) || n < 1 ? 1 : n > 20 ? 20 : n
+                          ),
+                        };
+                      })
                     }
                     className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
                   />

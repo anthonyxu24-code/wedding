@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -79,11 +79,36 @@ export default function Home() {
     return <main className="min-h-screen bg-[#fafaf9]" />;
   }
 
+  const petals = Array.from({ length: 18 }, (_, i) => {
+    const variant = (i % 3) + 1;
+    const left = Math.round((i / 18) * 100 + (i % 5) * 3);
+    const dur = 8 + (i % 5) * 2;
+    const delay = (i * 1.1) % 7;
+    const size = 10 + (i % 4) * 3;
+    return { variant, left, dur, delay, size };
+  });
+
   return (
-    <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
+    <main className="min-h-screen font-sans bg-hero-sakura pb-28 md:pb-0 relative overflow-hidden">
+      {petals.map((p, i) => (
+        <span
+          key={i}
+          className={`petal petal-${p.variant}`}
+          style={{
+            left: `${p.left}%`,
+            width: p.size,
+            height: p.size,
+            "--dur": `${p.dur}s`,
+            "--delay": `${p.delay}s`,
+            borderRadius: "50% 0 50% 50%",
+            background: "linear-gradient(135deg, #f9cdd3 0%, #f4a6b0 100%)",
+            opacity: 0,
+          } as React.CSSProperties}
+        />
+      ))}
       <PageNav />
 
-      <div className="max-w-md md:max-w-2xl mx-auto py-10 px-4 flex flex-col items-center animate-fade-in">
+      <div className="max-w-md md:max-w-2xl mx-auto py-10 px-4 flex flex-col items-center animate-fade-in relative z-10">
         {/* Cover image */}
         <div className="w-full max-w-[420px] md:max-w-[560px] aspect-[3/4] relative rounded-xl overflow-hidden shadow-md">
           <Image
