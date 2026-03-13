@@ -64,7 +64,7 @@ function Countdown() {
 }
 
 export default function Home() {
-  const { lang, date, time, address } = useLocale();
+  const { lang, locale, date, time, address } = useLocale();
   const [hasRsvped, setHasRsvped] = useState<boolean | null>(null);
   const [rsvpHref, setRsvpHref] = useState("/rsvp");
 
@@ -115,10 +115,10 @@ export default function Home() {
         {/* Cover image */}
         <div className="w-full max-w-[420px] md:max-w-[560px] aspect-[3/4] relative rounded-xl overflow-hidden shadow-md">
           <Image
-            src="/cover.png"
+            src={locale === "zh" ? "/InvitationChinese.jpg" : "/InvitationEnglish.jpg"}
             alt="Cindy and Anthony — Four Seasons Kyoto, April 10, 2026"
             fill
-            className="object-contain object-center"
+            className="object-cover object-center"
             sizes="(max-width: 768px) 90vw, 560px"
             quality={95}
             priority
@@ -166,6 +166,18 @@ export default function Home() {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Sprite & Milky */}
+      <div className="max-w-[320px] md:max-w-[400px] mx-auto px-4 relative z-10">
+        <Image
+          src="/SpriteAndMilky.jpg"
+          alt="Sprite and Milky — Let's celebrate love together!"
+          width={400}
+          height={600}
+          className="w-full h-auto rounded-xl"
+          quality={90}
+        />
       </div>
 
       <footer className="py-10 px-4 text-center text-sm text-[var(--muted)]">
