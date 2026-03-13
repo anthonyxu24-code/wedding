@@ -25,7 +25,16 @@ type Guest = {
   created_at: string;
 };
 
-type Tab = "rsvps" | "guests";
+type Gift = {
+  id: string;
+  name: string;
+  amount: number;
+  method: string;
+  note: string | null;
+  created_at: string;
+};
+
+type Tab = "rsvps" | "guests" | "gifts";
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -47,6 +56,11 @@ export default function AdminPage() {
   const [sendAllLoading, setSendAllLoading] = useState(false);
   const [expandedRsvp, setExpandedRsvp] = useState<string | null>(null);
 
+  // Gifts state
+  const [gifts, setGifts] = useState<Gift[]>([]);
+  const [giftsLoading, setGiftsLoading] = useState(false);
+  const [newGift, setNewGift] = useState({ name: "", amount: "", method: "venmo" as string, note: "" });
+
   const fetchGuests = useCallback(async () => {
     setGuestsLoading(true);
     try {
@@ -57,6 +71,15 @@ export default function AdminPage() {
       }
     } catch { /* ignore */ }
     finally { setGuestsLoading(false); }
+  }, []);
+
+  const fetchGifts = useCallback(async () => {
+    setGiftsLoading(true);
+    try {
+      const res = await fetch("/api/admin/gifts");
+      if (res.ok) setGifts(await res.json());
+    } catch { /* ignore */ }
+    finally { setGiftsLoading(false); }
   }, []);
 
   useEffect(() => {
@@ -81,6 +104,12 @@ export default function AdminPage() {
       fetchGuests();
     }
   }, [authenticated, tab, guests.length, fetchGuests]);
+
+  useEffect(() => {
+    if (authenticated && tab === "gifts" && gifts.length === 0) {
+      fetchGifts();
+    }
+  }, [authenticated, tab, gifts.length, fetchGifts]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -290,6 +319,14 @@ export default function AdminPage() {
           >
             Guest List {unsentCount > 0 && <span className="ml-1 text-xs text-orange-500">({unsentCount} unsent)</span>}
           </button>
+          <button
+            onClick={() => setTab("gifts")}
+            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${
+              tab === "gifts" ? "border-stone-800 text-stone-800" : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            Gifts
+          </button>
         </div>
 
         {/* ═══ RSVPs Tab ═══ */}
@@ -484,6 +521,143 @@ export default function AdminPage() {
             )}
             {!guestsLoading && guests.length === 0 && (
               <p className="text-center text-stone-500 py-8">No guests added yet.</p>
+            )}
+          </>
+        )}
+
+        {/* ═══ Gifts Tab ═══ */}
+        {tab === "gifts" && (
+          <>
+            {/* Summary */}
+            <div className="mb-6 flex gap-6 text-sm flex-wrap">
+              <span className="text-stone-600">
+                Total: <strong>${(gifts.reduce((s, g) => s + g.amount, 0) / 100).toFixed(2)}</strong>
+              </span>
+              <span className="text-stone-600">
+                Gifts: <strong>{gifts.length}</strong>
+              </span>
+              {["stripe", "venmo", "other"].map((m) => {
+                const sub = gifts.filter((g) => g.method === m);
+                if (sub.length === 0) return null;
+                return (
+                  <span key={m} className="text-stone-500">
+                    {m.charAt(0).toUpperCase() + m.slice(1)}: ${(sub.reduce((s, g) => s + g.amount, 0) / 100).toFixed(2)} ({sub.length})
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Add manual gift (for Venmo / other) */}
+            <div className="mb-6 p-4 border border-stone-200 rounded-lg bg-white">
+              <p className="text-sm font-medium text-stone-700 mb-3">Record a gift manually</p>
+              <div className="flex flex-wrap gap-2 items-end">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={newGift.name}
+                  onChange={(e) => setNewGift((g) => ({ ...g, name: e.target.value }))}
+                  className="flex-1 min-w-[120px] px-3 py-2 text-sm border border-stone-200 rounded-md focus:outline-none focus:border-stone-400"
+                />
+                <input
+                  type="number"
+                  placeholder="Amount ($)"
+                  min="1"
+                  value={newGift.amount}
+                  onChange={(e) => setNewGift((g) => ({ ...g, amount: e.target.value }))}
+                  className="w-28 px-3 py-2 text-sm border border-stone-200 rounded-md focus:outline-none focus:border-stone-400"
+                />
+                <select
+                  value={newGift.method}
+                  onChange={(e) => setNewGift((g) => ({ ...g, method: e.target.value }))}
+                  className="px-3 py-2 text-sm border border-stone-200 rounded-md focus:outline-none focus:border-stone-400"
+                >
+                  <option value="venmo">Venmo</option>
+                  <option value="stripe">Stripe</option>
+                  <option value="other">Other</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Note (optional)"
+                  value={newGift.note}
+                  onChange={(e) => setNewGift((g) => ({ ...g, note: e.target.value }))}
+                  className="flex-1 min-w-[120px] px-3 py-2 text-sm border border-stone-200 rounded-md focus:outline-none focus:border-stone-400"
+                />
+                <button
+                  onClick={async () => {
+                    if (!newGift.name.trim() || !newGift.amount) return;
+                    try {
+                      const res = await fetch("/api/admin/gifts", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(newGift),
+                      });
+                      if (res.ok) {
+                        setNewGift({ name: "", amount: "", method: "venmo", note: "" });
+                        fetchGifts();
+                      } else {
+                        const d = await res.json().catch(() => ({}));
+                        alert(d.error || "Failed to add gift");
+                      }
+                    } catch { alert("Failed to add gift"); }
+                  }}
+                  className="px-4 py-2 text-sm bg-stone-800 text-white rounded-md hover:bg-stone-700"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Gifts table */}
+            {giftsLoading && <p className="text-center text-stone-500 py-8">Loading…</p>}
+            {!giftsLoading && gifts.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-left text-stone-500">
+                      <th className="py-2 pr-4 font-medium">Name</th>
+                      <th className="py-2 pr-4 font-medium">Amount</th>
+                      <th className="py-2 pr-4 font-medium">Method</th>
+                      <th className="py-2 pr-4 font-medium">Note</th>
+                      <th className="py-2 pr-4 font-medium">Date</th>
+                      <th className="py-2 font-medium"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gifts.map((gift) => (
+                      <tr key={gift.id} className="border-b border-stone-100 hover:bg-stone-50">
+                        <td className="py-2 pr-4">{gift.name}</td>
+                        <td className="py-2 pr-4 font-medium">${(gift.amount / 100).toFixed(2)}</td>
+                        <td className="py-2 pr-4">
+                          <span className={`px-2 py-0.5 rounded-full text-xs ${
+                            gift.method === "stripe" ? "bg-purple-100 text-purple-700" :
+                            gift.method === "venmo" ? "bg-blue-100 text-blue-700" :
+                            "bg-stone-100 text-stone-600"
+                          }`}>
+                            {gift.method}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-4 text-stone-500 max-w-[200px] truncate">{gift.note || "—"}</td>
+                        <td className="py-2 pr-4 text-stone-400">{new Date(gift.created_at).toLocaleDateString()}</td>
+                        <td className="py-2">
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Delete gift from ${gift.name}?`)) return;
+                              await fetch(`/api/admin/gifts?id=${gift.id}`, { method: "DELETE" });
+                              fetchGifts();
+                            }}
+                            className="text-xs text-red-500 hover:text-red-700"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {!giftsLoading && gifts.length === 0 && (
+              <p className="text-center text-stone-500 py-8">No gifts recorded yet.</p>
             )}
           </>
         )}

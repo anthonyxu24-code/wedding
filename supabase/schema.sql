@@ -64,6 +64,28 @@ create policy "No anon delete"
   using (false);
 
 -- ============================================================
+-- Gifts table (registry tracking)
+-- ============================================================
+
+create table if not exists public.gifts (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  amount integer not null,
+  method text not null check (method in ('stripe', 'venmo', 'other')),
+  stripe_session_id text,
+  note text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.gifts enable row level security;
+
+create policy "No anon access to gifts"
+  on public.gifts for all
+  to anon
+  using (false)
+  with check (false);
+
+-- ============================================================
 -- Sent reminders (milestone tracking for cron)
 -- ============================================================
 

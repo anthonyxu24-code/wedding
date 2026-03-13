@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const { amount } = await req.json();
+    const { amount, name } = await req.json();
 
     const cents = Math.round(Number(amount) * 100);
     if (!cents || cents < 100) {
@@ -16,6 +16,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const guestName = name ? String(name).trim() : "Anonymous";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -29,6 +31,7 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+      metadata: { guest_name: guestName },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/registry?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/registry`,
     });

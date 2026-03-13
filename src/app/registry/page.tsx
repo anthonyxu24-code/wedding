@@ -6,6 +6,7 @@ import { PageNav } from "@/components/PageNav";
 
 export default function RegistryPage() {
   const { lang } = useLocale();
+  const [giftName, setGiftName] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -15,6 +16,10 @@ export default function RegistryPage() {
     new URLSearchParams(window.location.search).get("success") === "1";
 
   async function handleCardCheckout() {
+    if (!giftName.trim()) {
+      setError(lang.yourName ? "Please enter your name" : "Please enter your name");
+      return;
+    }
     const value = parseFloat(amount);
     if (!value || value < 1) {
       setError(lang.giftAmountRequired);
@@ -26,7 +31,7 @@ export default function RegistryPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: value }),
+        body: JSON.stringify({ amount: value, name: giftName.trim() }),
       });
       const data = await res.json();
       if (data.url) {
@@ -56,6 +61,20 @@ export default function RegistryPage() {
               {lang.thankYou}
             </div>
           )}
+
+          {/* Name input */}
+          <div className="mb-6">
+            <label className="block text-sm text-[var(--muted)] mb-2">
+              {lang.yourName}
+            </label>
+            <input
+              type="text"
+              value={giftName}
+              onChange={(e) => { setGiftName(e.target.value); setError(""); }}
+              placeholder={lang.yourName}
+              className="w-full max-w-[260px] mx-auto py-3 px-3 text-sm text-center rounded-lg border border-[var(--border)] bg-white focus:border-[var(--foreground)] outline-none transition-colors"
+            />
+          </div>
 
           {/* Amount input */}
           <div className="mb-6">
