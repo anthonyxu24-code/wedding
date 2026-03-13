@@ -47,6 +47,8 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 
   <a href="${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;" target="_blank">${isZh ? "立即回复" : "RSVP Now"}</a>
 
+  <img src="${SITE_URL}/SpriteAndMilkyCut.jpg" alt="${isZh ? "一起庆祝爱情" : "Let's celebrate love together!"}" style="${SHARED_STYLES.coverImg}margin-top:16px;" width="480" />
+
   <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;">
     <p style="font-size:12px;color:#71717a;margin:0 0 4px;">${isZh ? "网站密码" : "Website Password"}</p>
     <p style="font-size:18px;font-weight:700;color:#1c1c1c;margin:0;letter-spacing:0.5px;">Hagabooga</p>
@@ -62,9 +64,6 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
   </div>
 
   <hr style="${SHARED_STYLES.divider}" />
-
-  <img src="${SITE_URL}/SpriteAndMilky.jpg" alt="${isZh ? "一起庆祝爱情" : "Let's celebrate love together!"}" style="${SHARED_STYLES.coverImg}" width="480" />
-
   <p style="${SHARED_STYLES.footer}">${isZh
     ? "Cindy & Anthony · 2026年4月10日 · 京都"
     : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>

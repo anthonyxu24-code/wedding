@@ -167,6 +167,18 @@ export default function Home() {
             </Link>
           </div>
         )}
+
+        {/* Sprite & Milky */}
+        <div className="mt-10 w-full max-w-[420px] md:max-w-[520px] rounded-xl overflow-hidden shadow-md">
+          <Image
+            src="/SpriteAndMilkyCut.jpg"
+            alt="Sprite and Milky — Let's celebrate love together!"
+            width={1024}
+            height={512}
+            className="w-full h-auto"
+            quality={90}
+          />
+        </div>
       </div>
 
       <footer className="py-10 px-4 text-center text-sm text-[var(--muted)]">
