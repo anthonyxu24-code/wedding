@@ -36,22 +36,12 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 <body style="margin:0;padding:0;background:#fafaf9;">
 <div style="${SHARED_STYLES.wrapper}">
 
-  <img src="${SITE_URL}/cover.png" alt="Cindy & Anthony" style="${SHARED_STYLES.coverImg}" width="480" />
-
-  <h1 style="${SHARED_STYLES.heading}">Cindy & Anthony</h1>
-  <p style="${SHARED_STYLES.subheading}">${isZh ? "诚邀您参加我们的婚礼" : "Request the pleasure of your company"}</p>
-
-  <hr style="${SHARED_STYLES.divider}" />
+  <img src="${SITE_URL}/${isZh ? "InvitationChinese.jpg" : "InvitationEnglish.jpg"}" alt="Cindy & Anthony" style="${SHARED_STYLES.coverImg}" width="480" />
 
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "尊敬的" : "Dear"} ${guestName},</strong></p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh
     ? "我们诚挚邀请您参加我们的婚礼。"
     : "We would be honoured to have you celebrate with us."}</p>
-
-  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "2026年4月10日" : "April 10, 2026"}</strong></p>
-  <p style="${SHARED_STYLES.detail}">${isZh ? "下午 3:00 – 8:30" : "3:00 PM – 8:30 PM"}</p>
-  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
-  <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto</p>
 
   <a href="${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "查看邀请" : "View Invitation"}</a>
 
@@ -72,6 +62,9 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
   </div>
 
   <hr style="${SHARED_STYLES.divider}" />
+
+  <img src="${SITE_URL}/SpriteAndMilky.jpg" alt="${isZh ? "一起庆祝爱情" : "Let's celebrate love together!"}" style="${SHARED_STYLES.coverImg}" width="480" />
+
   <p style="${SHARED_STYLES.footer}">${isZh
     ? "Cindy & Anthony · 2026年4月10日 · 京都"
     : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>

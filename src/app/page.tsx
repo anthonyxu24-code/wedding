@@ -169,18 +169,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Sprite & Milky */}
-      <div className="max-w-[420px] md:max-w-[520px] mx-auto px-4 relative z-10 mt-8">
-        <Image
-          src="/SpriteAndMilky.jpg"
-          alt="Sprite and Milky — Let's celebrate love together!"
-          width={1417}
-          height={2520}
-          className="w-full h-auto rounded-xl shadow-md"
-          quality={90}
-        />
-      </div>
-
       <footer className="py-10 px-4 text-center text-sm text-[var(--muted)]">
         {lang.footer}
       </footer>
