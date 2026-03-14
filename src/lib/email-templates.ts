@@ -43,10 +43,7 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 <body style="margin:0;padding:0;background:#fafaf9;">
 <div style="${SHARED_STYLES.wrapper}">
 
-  <h1 style="${SHARED_STYLES.heading}">Cindy & Anthony</h1>
-  <p style="${SHARED_STYLES.subheading}">${isZh ? "诚挚邀请您参加我们的婚礼" : "Request the honour of your presence at their wedding"}</p>
-
-  <hr style="${SHARED_STYLES.divider}" />
+  <img src="${SITE_URL}/${isZh ? "InvitationChinese.jpg" : "InvitationEnglish.jpg"}" alt="Cindy & Anthony" style="${SHARED_STYLES.coverImg}" width="480" />
 
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "尊敬的" : "Dear"} ${guestName},</strong></p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh
