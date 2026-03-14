@@ -307,6 +307,9 @@ function RsvpPageInner() {
             <p className="text-sm mt-2 leading-relaxed">
               {isUpdate ? lang.rsvpUpdated : lang.receivedResponse}
             </p>
+            <p className="text-sm mt-3 leading-relaxed">
+              {lang.confirmationEmailNote}
+            </p>
             <p className="text-xs mt-4 text-[var(--muted)]">
               Redirecting to home in {redirectCount}s…
             </p>

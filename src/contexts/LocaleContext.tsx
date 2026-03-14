@@ -31,6 +31,7 @@ export const t: Record<Locale, Record<string, string>> = {
     sending: "Sending…",
     thankYou: "Thank you.",
     receivedResponse: "We've received your response.",
+    confirmationEmailNote: "A confirmation email will be sent to your inbox shortly.",
     registryIntro:
       "Your presence is our greatest gift. Should you wish to give, we welcome a contribution toward our honeymoon or a gift from the links below.",
     contribute: "Contribute",
@@ -134,6 +135,7 @@ export const t: Record<Locale, Record<string, string>> = {
     sending: "提交中…",
     thankYou: "谢谢您。",
     receivedResponse: "我们已收到您的回复。",
+    confirmationEmailNote: "确认邮件将很快发送到您的邮箱。",
     registryIntro:
       "您的莅临是我们最好的礼物。若您想送上一份心意，欢迎以礼金或以下礼品链接的方式表达。",
     contribute: "礼金",
