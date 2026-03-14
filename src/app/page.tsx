@@ -159,6 +159,9 @@ export default function Home() {
             <p className="text-sm text-[var(--muted)] mt-4">
               {date} · {time}
             </p>
+            <p className="text-xs text-[var(--muted)] mt-2 italic">
+              {lang.arriveEarly}
+            </p>
             <Link
               href={rsvpHref}
               className="mt-6 text-sm text-[var(--muted)] underline underline-offset-4 hover:text-[var(--foreground)] transition-colors min-h-[44px] flex items-center"

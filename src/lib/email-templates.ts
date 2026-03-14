@@ -34,8 +34,8 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
   const viewUrl = `${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}`;
 
   const text = isZh
-    ? `尊敬的 ${guestName},\n\n我们诚挚邀请您参加 Cindy & Anthony 的婚礼。\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n查看邀请：${viewUrl}\nRSVP：${rsvpUrl}\n\n网站密码：Hagabooga\n\nCindy & Anthony`
-    : `Dear ${guestName},\n\nWe would be honoured to have you celebrate with us at Cindy & Anthony's wedding.\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nView Invitation: ${viewUrl}\nRSVP: ${rsvpUrl}\n\nWebsite Password: Hagabooga\n\nCindy & Anthony`;
+    ? `尊敬的 ${guestName},\n\n我们诚挚邀请您参加 Cindy & Anthony 的婚礼。\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n请于下午2:00前到达，届时将有人引导您前往教堂\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n查看邀请：${viewUrl}\nRSVP：${rsvpUrl}\n\n网站密码：Hagabooga\n\nCindy & Anthony`
+    : `Dear ${guestName},\n\nWe would be honoured to have you celebrate with us at Cindy & Anthony's wedding.\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nPlease arrive by 2:00 PM to be directed to the chapel.\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nView Invitation: ${viewUrl}\nRSVP: ${rsvpUrl}\n\nWebsite Password: Hagabooga\n\nCindy & Anthony`;
 
   const html = `<!DOCTYPE html>
 <html lang="${locale}">
@@ -135,6 +135,7 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
   ${attending ? `
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "2026年4月10日" : "April 10, 2026"}</strong></p>
   <p style="${SHARED_STYLES.detail}">${isZh ? "下午 3:00 – 8:30" : "3:00 PM – 8:30 PM"}</p>
+  <p style="font-size:13px;text-align:center;color:#71717a;font-style:italic;margin:6px 0 0;">${isZh ? "请于下午2:00前到达，届时将有人引导您前往教堂" : "Please arrive by 2:00 PM to be directed to the chapel"}</p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
 
   <hr style="${SHARED_STYLES.divider}" />
@@ -202,6 +203,7 @@ export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: 
 
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "2026年4月10日" : "April 10, 2026"}</strong></p>
   <p style="${SHARED_STYLES.detail}">${isZh ? "下午 3:00 – 8:30" : "3:00 PM – 8:30 PM"}</p>
+  <p style="font-size:13px;text-align:center;color:#71717a;font-style:italic;margin:6px 0 0;">${isZh ? "请于下午2:00前到达，届时将有人引导您前往教堂" : "Please arrive by 2:00 PM to be directed to the chapel"}</p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
   <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto</p>
 
@@ -224,8 +226,8 @@ export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: 
 </html>`;
 
   const text = isZh
-    ? `尊敬的 ${guestName},\n\n距离我们的婚礼还有 ${daysUntil} 天！\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n修改您的回复：${rsvpEditUrl}\n\nCindy & Anthony`
-    : `Dear ${guestName},\n\nOnly ${daysUntil} day${daysUntil > 1 ? "s" : ""} until our wedding!\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nEdit your RSVP: ${rsvpEditUrl}\n\nCindy & Anthony`;
+    ? `尊敬的 ${guestName},\n\n距离我们的婚礼还有 ${daysUntil} 天！\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n请于下午2:00前到达，届时将有人引导您前往教堂\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n修改您的回复：${rsvpEditUrl}\n\nCindy & Anthony`
+    : `Dear ${guestName},\n\nOnly ${daysUntil} day${daysUntil > 1 ? "s" : ""} until our wedding!\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nPlease arrive by 2:00 PM to be directed to the chapel.\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nEdit your RSVP: ${rsvpEditUrl}\n\nCindy & Anthony`;
 
   return { subject, html, text };
 }
