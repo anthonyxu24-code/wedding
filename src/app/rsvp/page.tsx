@@ -58,7 +58,8 @@ function RsvpPageInner() {
   useEffect(() => {
     if (!token) {
       setLoadingGuest(false);
-      setTokenError(true);
+      setTokenError(false);
+      setGuest({ name: null, email: null, locale: searchParams.get("lang") || "en" });
       return;
     }
 
@@ -81,6 +82,11 @@ function RsvpPageInner() {
             message: data.rsvp.message || "",
             address: data.rsvp.address || "",
           });
+        }
+        if (searchParams.get("codeSent") === "1") {
+          setCodeSent(true);
+          const em = data.guest?.email || "";
+          setMaskedEmail(em ? em.replace(/(.{2}).*(@.*)/, "$1***$2") : "");
         }
       })
       .catch(() => setTokenError(true))
@@ -177,6 +183,7 @@ function RsvpPageInner() {
   }
 
   async function handleSendCode() {
+    const isOpen = !token;
     const needsEmail = !guest?.email;
     const needsName = !guest?.name?.trim();
     if (needsEmail && !selfEmail.trim()) return;
@@ -188,15 +195,21 @@ function RsvpPageInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token,
+          token: isOpen ? undefined : token,
           email: needsEmail ? selfEmail.trim() : undefined,
           name: needsName ? selfName.trim() : undefined,
+          locale: guest?.locale || searchParams.get("lang") || "en",
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send code");
       setCodeSent(true);
       setMaskedEmail(data.email || guest?.email || "");
+      if (isOpen && data.token) {
+        const lang = guest?.locale || searchParams.get("lang") || "en";
+        router.replace(`/rsvp?token=${encodeURIComponent(data.token)}&lang=${lang}&codeSent=1`);
+        return;
+      }
     } catch (err) {
       setCodeError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

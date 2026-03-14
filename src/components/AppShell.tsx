@@ -14,7 +14,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const token = searchParams.get("token");
   const isAdmin = pathname.startsWith("/admin");
-  const isRsvpWithToken = pathname === "/rsvp" && !!token;
+  const isRsvpPage = pathname === "/rsvp";
   const isOpenPath = OPEN_PATHS.includes(pathname);
 
   const [hasRsvped, setHasRsvped] = useState<boolean | null>(null);
@@ -47,7 +47,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  if (isRsvpWithToken) {
+  if (isRsvpPage) {
     return (
       <LocaleProvider>
         <LanguageToggle />

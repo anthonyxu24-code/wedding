@@ -2,25 +2,64 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildVerifyCodeEmail } from "@/lib/email-templates";
 import { sendEmail } from "@/lib/send-email";
+import { generateToken } from "@/lib/generate-token";
 
 export async function POST(request: Request) {
   try {
-    const { token, email: providedEmail, name: providedName } = await request.json();
-    if (!token) {
-      return NextResponse.json({ error: "Missing token" }, { status: 400 });
-    }
+    const { token, email: providedEmail, name: providedName, locale: providedLocale } = await request.json();
+
+    const cleanedEmail = providedEmail ? String(providedEmail).trim().toLowerCase() : "";
+    const cleanedName = providedName ? String(providedName).trim() : "";
 
     const supabase = createServerSupabase();
+    let guest: { id: string; name: string | null; email: string | null; locale: string; rsvp_token?: string } | null = null;
+    let guestToken = token;
 
-    const { data: guest, error: guestErr } = await supabase
-      .from("guests")
-      .select("id, name, email, locale")
-      .eq("rsvp_token", token)
-      .limit(1)
-      .single();
+    if (token) {
+      const { data, error } = await supabase
+        .from("guests")
+        .select("id, name, email, locale")
+        .eq("rsvp_token", token)
+        .limit(1)
+        .single();
 
-    if (guestErr || !guest) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 404 });
+      if (error || !data) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 404 });
+      }
+      guest = data;
+    } else if (cleanedEmail && cleanedEmail.includes("@")) {
+      const { data: existingList } = await supabase
+        .from("guests")
+        .select("id, name, email, locale, rsvp_token")
+        .eq("email", cleanedEmail)
+        .limit(1);
+
+      const existing = existingList?.[0];
+      if (existing) {
+        guest = existing;
+        guestToken = existing.rsvp_token;
+      } else {
+        const newToken = generateToken();
+        const { data: created, error: createErr } = await supabase
+          .from("guests")
+          .insert({
+            name: cleanedName || null,
+            email: cleanedEmail,
+            locale: providedLocale || "en",
+            rsvp_token: newToken,
+          })
+          .select("id, name, email, locale")
+          .single();
+
+        if (createErr || !created) {
+          console.error("Create guest error:", createErr);
+          return NextResponse.json({ error: "Server error" }, { status: 500 });
+        }
+        guest = created;
+        guestToken = newToken;
+      }
+    } else {
+      return NextResponse.json({ error: "Name and email required" }, { status: 400 });
     }
 
     let emailToUse = guest.email;
@@ -69,7 +108,7 @@ export async function POST(request: Request) {
 
     const masked = emailToUse.replace(/^(.{2})(.*)(@.*)$/, (_m: string, a: string, b: string, c: string) => a + b.replace(/./g, "*") + c);
 
-    return NextResponse.json({ ok: true, email: masked });
+    return NextResponse.json({ ok: true, email: masked, token: !token ? guestToken : undefined });
   } catch (e) {
     console.error("Send code error:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

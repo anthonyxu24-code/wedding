@@ -452,17 +452,33 @@ export default function AdminPage() {
             </form>
 
             {/* Send All button */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <span className="text-sm text-stone-600">
                 <strong>{guests.length}</strong> guest{guests.length !== 1 ? "s" : ""} · <strong>{guests.filter((g) => g.invite_sent).length}</strong> sent · <strong>{unsentCount}</strong> unsent
               </span>
-              <button
-                onClick={handleSendAll}
-                disabled={sendAllLoading || unsentCount === 0}
-                className="px-4 py-2 rounded-md bg-stone-800 text-white text-sm hover:bg-stone-700 disabled:opacity-60"
-              >
-                {sendAllLoading ? "Sending…" : `Send All Unsent (${unsentCount})`}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                    const url = `${base}/rsvp`;
+                    const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`;
+                    navigator.clipboard.writeText(msg).then(() => {
+                      setCopiedId("open");
+                      setTimeout(() => setCopiedId(null), 2000);
+                    });
+                  }}
+                  className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
+                >
+                  {copiedId === "open" ? "Copied!" : "Copy Open RSVP Link"}
+                </button>
+                <button
+                  onClick={handleSendAll}
+                  disabled={sendAllLoading || unsentCount === 0}
+                  className="px-4 py-2 rounded-md bg-stone-800 text-white text-sm hover:bg-stone-700 disabled:opacity-60"
+                >
+                  {sendAllLoading ? "Sending…" : `Send All Unsent (${unsentCount})`}
+                </button>
+              </div>
             </div>
 
             {/* Guest table */}
