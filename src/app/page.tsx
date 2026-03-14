@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
 
-const WEDDING_UTC = new Date("2026-04-10T06:00:00Z").getTime();
+const WEDDING_UTC = new Date("2026-04-10T05:00:00Z").getTime();
 
 function Countdown() {
   const { lang } = useLocale();

@@ -5,9 +5,9 @@ import { createContext, useContext, useState, useEffect, useMemo, type ReactNode
 export const ADDRESS =
   "445-3, Myohoin Maekawa-cho, Higashiyama-ku, 605-0932 Kyoto, Japan";
 const DATE_EN = "April 10, 2026";
-const TIME_EN = "3:00 PM – 8:30 PM";
+const TIME_EN = "2:00 PM – 8:30 PM";
 const DATE_ZH = "2026年4月10日";
-const TIME_ZH = "下午3:00 – 8:30";
+const TIME_ZH = "下午2:00 – 8:30";
 
 export type Locale = "en" | "zh";
 
