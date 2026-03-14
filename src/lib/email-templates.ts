@@ -119,9 +119,10 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
     ? (isZh ? `出席 · ${guestCount} 位宾客` : `Attending · ${guestCount} guest${guestCount > 1 ? "s" : ""}`)
     : (isZh ? "无法出席" : "Unable to attend");
 
+  const viewUrl = `${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}`;
   const text = isZh
-    ? `尊敬的 ${guestName},\n\n我们已收到您的回复，谢谢！\n\n状态：${attendingPlain}\n\n修改您的回复：${rsvpEditUrl}\n\nCindy & Anthony · 2026年4月10日 · 京都`
-    : `Dear ${guestName},\n\nWe've received your RSVP — thank you!\n\nStatus: ${attendingPlain}\n\nEdit your response: ${rsvpEditUrl}\n\nCindy & Anthony · April 10, 2026 · Kyoto`;
+    ? `尊敬的 ${guestName},\n\n我们已收到您的回复，谢谢！\n\n状态：${attendingPlain}\n\n修改您的回复：${rsvpEditUrl}\n\n完整邀请详情：\n日期：2026年4月10日（星期五）\n时间：下午 2:00 – 8:30\n请于下午2:00前到达，届时将有人引导您前往教堂\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan\n\n查看邀请：${viewUrl}\n网站密码：Hagabooga\n\n没收到？请检查垃圾邮件文件夹。\n\nCindy & Anthony · 2026年4月10日 · 京都`
+    : `Dear ${guestName},\n\nWe've received your RSVP — thank you!\n\nStatus: ${attendingPlain}\n\nEdit your response: ${rsvpEditUrl}\n\nFull invitation details:\nDate: Friday, April 10, 2026\nTime: 2:00 PM – 8:30 PM\nPlease arrive by 2:00 PM to be directed to the chapel\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan\n\nView invitation: ${viewUrl}\nWebsite password: Hagabooga\n\nDon't see this? Check your spam folder.\n\nCindy & Anthony · April 10, 2026 · Kyoto`;
 
   const attendingText = attending
     ? (isZh ? `✓ 出席 · ${guestCount} 位宾客` : `✓ Attending · ${guestCount} guest${guestCount > 1 ? "s" : ""}`)
@@ -132,6 +133,8 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#fafaf9;">
 <div style="${SHARED_STYLES.wrapper}">
+
+  <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:0 0 16px;">${isZh ? "没收到？请检查垃圾邮件文件夹。" : "Don't see this? Check your spam folder."}</p>
 
   <h1 style="${SHARED_STYLES.heading}">Cindy & Anthony</h1>
   <p style="${SHARED_STYLES.subheading}">${isZh ? "感谢您的回复" : "Thank You for Your RSVP"}</p>
@@ -149,25 +152,38 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
 
   <a href="${rsvpEditUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;margin-bottom:24px;">${isZh ? "修改我的回复" : "Edit Your Response"}</a>
 
-  ${attending ? `
-  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "2026年4月10日" : "April 10, 2026"}</strong></p>
-  <p style="${SHARED_STYLES.detail}">${isZh ? "下午 2:00 – 8:30" : "2:00 PM – 8:30 PM"}</p>
-  <p style="font-size:13px;text-align:center;color:#71717a;font-style:italic;margin:6px 0 0;">${isZh ? "请于下午2:00前到达，届时将有人引导您前往教堂" : "Please arrive by 2:00 PM to be directed to the chapel"}</p>
+  <hr style="${SHARED_STYLES.divider}" />
+
+  <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "完整邀请" : "Full Invitation"}</p>
+
+  <img src="${SITE_URL}/${isZh ? "InvitationChinese.jpg" : "InvitationEnglish.jpg"}" alt="Cindy & Anthony" style="${SHARED_STYLES.coverImg}" width="480" />
+
+  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "日期" : "Date"}</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "2026年4月10日（星期五）" : "Friday, April 10, 2026"}</p>
+  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "时间" : "Time"}</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "下午 2:00 – 8:30" : "2:00 PM – 8:30 PM"}</p>
+  <p style="font-size:13px;text-align:center;color:#71717a;font-style:italic;margin:2px 0 0;">${isZh ? "请于下午2:00前到达，届时将有人引导您前往教堂" : "Please arrive by 2:00 PM to be directed to the chapel"}</p>
+  <p style="${SHARED_STYLES.detail};margin-top:12px;"><strong>${isZh ? "地点" : "Venue"}</strong></p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
+  <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan</p>
+
+  <a href="${viewUrl}" style="${SHARED_STYLES.primaryBtn}">${isZh ? "查看邀请" : "View Invitation"}</a>
+
+  <img src="${SITE_URL}/SpriteAndMilkyCut.jpg" alt="Sprite & Milky" style="display:block;max-width:280px;height:auto;margin:20px auto 0;border-radius:8px;" width="280" />
+
+  <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;border-radius:6px;">
+    <p style="font-size:12px;color:#71717a;margin:0 0 4px;">${isZh ? "网站密码" : "Website Password"}</p>
+    <p style="font-size:18px;font-weight:700;color:#1c1c1c;margin:0;letter-spacing:0.5px;">Hagabooga</p>
+  </div>
 
   <hr style="${SHARED_STYLES.divider}" />
 
-  <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "准备您的旅程" : "Prepare for your trip"}</p>
+  <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "了解更多" : "Explore"}</p>
   <div style="text-align:center;">
     <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
     <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "地点与交通" : "Location & Travel"}</a>
     <a href="${linkUrl("/registry", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "礼品" : "Registry"}</a>
   </div>
-  ` : `
-  <p style="${SHARED_STYLES.detailMuted}">${isZh
-    ? "很遗憾您无法出席，感谢您的回复。"
-    : "We're sorry you can't make it, but thank you for letting us know."}</p>
-  `}
 
   <hr style="${SHARED_STYLES.divider}" />
   <p style="${SHARED_STYLES.footer}">${isZh
