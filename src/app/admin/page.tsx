@@ -53,6 +53,7 @@ export default function AdminPage() {
   const [newGuest, setNewGuest] = useState({ name: "", email: "", locale: "en" as "en" | "zh" });
   const [addingGuest, setAddingGuest] = useState(false);
   const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sendAllLoading, setSendAllLoading] = useState(false);
   const [expandedRsvp, setExpandedRsvp] = useState<string | null>(null);
 
@@ -498,7 +499,20 @@ export default function AdminPage() {
                         <td className="p-3 text-stone-500">
                           {g.invite_sent_at ? new Date(g.invite_sent_at).toLocaleDateString() : "—"}
                         </td>
-                        <td className="p-3 flex gap-3">
+                        <td className="p-3 flex gap-3 flex-wrap">
+                          <button
+                            onClick={() => {
+                              const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                              const url = `${base}/?token=${encodeURIComponent(g.rsvp_token)}&lang=${g.locale}`;
+                              navigator.clipboard.writeText(url).then(() => {
+                                setCopiedId(g.id);
+                                setTimeout(() => setCopiedId(null), 2000);
+                              });
+                            }}
+                            className="text-xs text-emerald-600 hover:text-emerald-800 transition-colors"
+                          >
+                            {copiedId === g.id ? "Copied!" : "Copy Link"}
+                          </button>
                           <button
                             onClick={() => handleSendInvites([g.id])}
                             disabled={sendingIds.has(g.id)}
