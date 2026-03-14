@@ -254,3 +254,49 @@ export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: 
 
   return { subject, html, text };
 }
+
+export function buildVerifyCodeEmail({ guestName, locale, code }: { guestName: string; locale: "en" | "zh"; code: string }): { subject: string; html: string; text: string } {
+  const isZh = locale === "zh";
+
+  const subject = isZh
+    ? `${code} — 您的 RSVP 验证码`
+    : `${code} — Your RSVP Verification Code`;
+
+  const text = isZh
+    ? `尊敬的 ${guestName},\n\n您的验证码是：${code}\n\n请在 RSVP 页面输入此验证码以继续。\n\nCindy & Anthony`
+    : `Dear ${guestName},\n\nYour verification code is: ${code}\n\nPlease enter this code on the RSVP page to continue.\n\nCindy & Anthony`;
+
+  const html = `<!DOCTYPE html>
+<html lang="${locale}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#fafaf9;">
+<div style="${SHARED_STYLES.wrapper}">
+
+  <h1 style="${SHARED_STYLES.heading}">Cindy & Anthony</h1>
+  <p style="${SHARED_STYLES.subheading}">${isZh ? "RSVP 验证码" : "RSVP Verification Code"}</p>
+
+  <hr style="${SHARED_STYLES.divider}" />
+
+  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "尊敬的" : "Dear"} ${guestName},</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh
+    ? "请使用以下验证码完成您的 RSVP："
+    : "Please use the code below to complete your RSVP:"}</p>
+
+  <div style="text-align:center;padding:24px 20px;margin:24px auto;background:#f5f5f4;max-width:240px;border-radius:8px;">
+    <p style="font-size:36px;font-weight:700;color:#1c1c1c;margin:0;letter-spacing:8px;font-family:monospace;">${code}</p>
+  </div>
+
+  <p style="font-size:13px;text-align:center;color:#a1a1aa;margin:0;">${isZh
+    ? "此验证码10分钟内有效。"
+    : "This code is valid for 10 minutes."}</p>
+
+  <hr style="${SHARED_STYLES.divider}" />
+  <p style="${SHARED_STYLES.footer}">${isZh
+    ? "Cindy & Anthony · 2026年4月10日 · 京都"
+    : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>
+</div>
+</body>
+</html>`;
+
+  return { subject, html, text };
+}

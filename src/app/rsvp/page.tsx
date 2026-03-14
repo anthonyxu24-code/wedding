@@ -31,6 +31,14 @@ function RsvpPageInner() {
   const [loadingGuest, setLoadingGuest] = useState(true);
   const [tokenError, setTokenError] = useState(false);
 
+  const [verified, setVerified] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeSending, setCodeSending] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState("");
+  const [codeInput, setCodeInput] = useState("");
+  const [codeVerifying, setCodeVerifying] = useState(false);
+  const [codeError, setCodeError] = useState("");
+
   const [step, setStep] = useState<Step>("form");
   const [isUpdate, setIsUpdate] = useState(false);
   const [redirectCount, setRedirectCount] = useState(5);
@@ -61,6 +69,7 @@ function RsvpPageInner() {
         setGuest(data.guest);
         if (data.rsvp) {
           setIsUpdate(true);
+          setVerified(true);
           setForm({
             attending: data.rsvp.attending,
             guestCount: String(data.rsvp.guest_count),
@@ -165,9 +174,124 @@ function RsvpPageInner() {
     );
   }
 
+  async function handleSendCode() {
+    setCodeSending(true);
+    setCodeError("");
+    try {
+      const res = await fetch("/api/rsvp/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send code");
+      setCodeSent(true);
+      setMaskedEmail(data.email || guest?.email || "");
+    } catch (err) {
+      setCodeError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setCodeSending(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    setCodeVerifying(true);
+    setCodeError("");
+    try {
+      const res = await fetch("/api/rsvp/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, code: codeInput }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code");
+      setVerified(true);
+    } catch {
+      setCodeError(lang.verifyCodeInvalid);
+    } finally {
+      setCodeVerifying(false);
+    }
+  }
+
   const parsedGuestNames = form.guestNames.trim()
     ? form.guestNames.trim().split(/\n/).map((s) => s.trim()).filter(Boolean)
     : [];
+
+  if (guest && !verified) {
+    return (
+      <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">
+        <PageNav />
+        <div className="max-w-md md:max-w-xl mx-auto py-10 px-4 animate-fade-in">
+          <div className="text-center space-y-6 py-8">
+            <h1 className="font-serif text-[var(--foreground)] text-xl">
+              {lang.rsvp}
+            </h1>
+            <p className="text-sm text-[var(--muted)]">
+              {guest.name} &middot; {guest.email}
+            </p>
+
+            {!codeSent ? (
+              <div className="space-y-4">
+                <p className="text-sm text-[var(--muted)] leading-relaxed max-w-xs mx-auto">
+                  {guest.locale === "zh"
+                    ? "我们需要验证您的电子邮箱才能继续"
+                    : "We need to verify your email to continue"}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={codeSending}
+                  className="w-full max-w-xs mx-auto min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50 block"
+                >
+                  {codeSending ? lang.sending : lang.sendVerifyCode}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-[var(--muted)] leading-relaxed">
+                  {lang.verifyCodeSent} <strong>{maskedEmail}</strong>
+                </p>
+                <p className="text-xs text-[var(--muted)]">{lang.checkSpam}</p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder={lang.verifyCodePlaceholder}
+                  className="w-full max-w-[200px] mx-auto block px-4 py-3 text-center text-2xl font-mono tracking-[0.3em] bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
+                  autoFocus
+                />
+                {codeError && (
+                  <p className="text-sm text-red-600/90">{codeError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={codeVerifying || codeInput.length !== 6}
+                  className="w-full max-w-xs mx-auto min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50 block"
+                >
+                  {codeVerifying ? lang.sending : lang.verifyCode}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={codeSending}
+                  className="text-xs text-[var(--muted)] underline underline-offset-4 hover:text-[var(--foreground)] transition-colors min-h-[44px]"
+                >
+                  {lang.resendCode}
+                </button>
+              </div>
+            )}
+
+            {codeError && !codeSent && (
+              <p className="text-sm text-red-600/90">{codeError}</p>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen font-sans bg-[#fafaf9] pb-28 md:pb-0">

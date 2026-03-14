@@ -10,6 +10,7 @@ create table if not exists public.guests (
   email text not null,
   locale text not null default 'en' check (locale in ('en', 'zh')),
   rsvp_token text unique not null default gen_random_uuid()::text,
+  verify_code text,
   invite_sent boolean not null default false,
   invite_sent_at timestamptz,
   created_at timestamptz not null default now()
