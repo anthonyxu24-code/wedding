@@ -29,9 +29,13 @@ export async function POST(request: Request) {
 
     for (const guest of guests) {
       try {
+        if (!guest.email) {
+          results.push({ id: guest.id, status: "failed", error: "No email — use Copy Link to share" });
+          continue;
+        }
         const { subject, html, text } = buildInviteEmail({
-          guestName: guest.name,
-          locale: guest.locale as "en" | "zh",
+          guestName: guest.name || "Guest",
+          locale: (guest.locale as "en" | "zh") || "en",
           rsvpToken: guest.rsvp_token,
         });
 

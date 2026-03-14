@@ -6,8 +6,8 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { PageNav } from "@/components/PageNav";
 
 type GuestInfo = {
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   locale: string;
 };
 
@@ -39,6 +39,7 @@ function RsvpPageInner() {
   const [codeVerifying, setCodeVerifying] = useState(false);
   const [codeError, setCodeError] = useState("");
   const [selfEmail, setSelfEmail] = useState("");
+  const [selfName, setSelfName] = useState("");
 
   const [step, setStep] = useState<Step>("form");
   const [isUpdate, setIsUpdate] = useState(false);
@@ -176,14 +177,21 @@ function RsvpPageInner() {
   }
 
   async function handleSendCode() {
-    if (!guest?.email && !selfEmail.trim()) return;
+    const needsEmail = !guest?.email;
+    const needsName = !guest?.name?.trim();
+    if (needsEmail && !selfEmail.trim()) return;
+    if (needsName && !selfName.trim()) return;
     setCodeSending(true);
     setCodeError("");
     try {
       const res = await fetch("/api/rsvp/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, email: guest?.email ? undefined : selfEmail.trim() }),
+        body: JSON.stringify({
+          token,
+          email: needsEmail ? selfEmail.trim() : undefined,
+          name: needsName ? selfName.trim() : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send code");
@@ -207,6 +215,9 @@ function RsvpPageInner() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Invalid code");
+      if (guest && (!guest.name?.trim() || !guest.email) && (selfName.trim() || selfEmail.trim())) {
+        setGuest((prev) => prev ? { ...prev, name: selfName.trim() || prev.name || "", email: selfEmail.trim() || prev.email || "" } : prev);
+      }
       setVerified(true);
     } catch {
       setCodeError(lang.verifyCodeInvalid);
@@ -229,20 +240,37 @@ function RsvpPageInner() {
               {lang.rsvp}
             </h1>
             <p className="text-sm text-[var(--muted)]">
-              {guest.name}{guest.email ? ` \u00b7 ${guest.email}` : ""}
+              {guest.name?.trim() ? guest.name : ""}{guest.name?.trim() && guest.email ? ` \u00b7 ${guest.email}` : guest.email ? guest.email : ""}
             </p>
 
             {!codeSent ? (
               <div className="space-y-4">
                 <p className="text-sm text-[var(--muted)] leading-relaxed max-w-xs mx-auto">
-                  {guest.email
+                  {guest.name?.trim() && guest.email
                     ? (guest.locale === "zh"
                       ? "我们需要验证您的电子邮箱才能继续"
                       : "We need to verify your email to continue")
-                    : (guest.locale === "zh"
+                    : !guest.name?.trim() && !guest.email
+                    ? (guest.locale === "zh"
+                      ? "请输入您的姓名和电子邮箱以接收验证码"
+                      : "Please enter your name and email to receive a verification code")
+                    : !guest.email
+                    ? (guest.locale === "zh"
                       ? "请输入您的电子邮箱以接收验证码"
-                      : "Please enter your email to receive a verification code")}
+                      : "Please enter your email to receive a verification code")
+                    : (guest.locale === "zh"
+                      ? "请输入您的姓名以继续"
+                      : "Please enter your name to continue")}
                 </p>
+                {!guest.name?.trim() && (
+                  <input
+                    type="text"
+                    value={selfName}
+                    onChange={(e) => setSelfName(e.target.value)}
+                    placeholder={guest.locale === "zh" ? "您的姓名" : "Your name"}
+                    className="w-full max-w-xs mx-auto block px-0 py-3 text-center bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
+                  />
+                )}
                 {!guest.email && (
                   <input
                     type="email"
@@ -255,7 +283,7 @@ function RsvpPageInner() {
                 <button
                   type="button"
                   onClick={handleSendCode}
-                  disabled={codeSending || (!guest.email && !selfEmail.trim())}
+                  disabled={codeSending || (!guest.email && !selfEmail.trim()) || (!guest.name?.trim() && !selfName.trim())}
                   className="w-full max-w-xs mx-auto min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50 block"
                 >
                   {codeSending ? lang.sending : lang.sendVerifyCode}
@@ -348,11 +376,11 @@ function RsvpPageInner() {
             <div className="rounded-lg bg-white/60 p-5 shadow-sm space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--muted)]">{lang.yourName}</span>
-                <span className="text-[var(--foreground)] font-medium text-right">{guest.name}</span>
+                <span className="text-[var(--foreground)] font-medium text-right">{guest.name || ""}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--muted)]">{lang.email}</span>
-                <span className="text-[var(--foreground)] text-right">{guest.email}</span>
+                <span className="text-[var(--foreground)] text-right">{guest.email || ""}</span>
               </div>
               <hr className="border-[var(--border)]" />
               <div className="flex justify-between">
@@ -431,7 +459,7 @@ function RsvpPageInner() {
                   id="name"
                   type="text"
                   readOnly
-                  value={guest.name}
+                  value={guest.name || ""}
                   className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none transition-colors opacity-70 cursor-default"
                 />
               </div>
@@ -446,7 +474,7 @@ function RsvpPageInner() {
                   id="email"
                   type="email"
                   readOnly
-                  value={guest.email}
+                  value={guest.email || ""}
                   className="w-full px-0 py-3 bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none transition-colors opacity-70 cursor-default"
                 />
               </div>

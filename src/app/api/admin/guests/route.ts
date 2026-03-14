@@ -34,9 +34,6 @@ export async function POST(request: Request) {
 
   try {
     const { name, email, locale } = await request.json();
-    if (!name) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
-    }
     if (locale && !["en", "zh"].includes(locale)) {
       return NextResponse.json({ error: "Locale must be 'en' or 'zh'" }, { status: 400 });
     }
@@ -45,7 +42,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("guests")
       .insert({
-        name: String(name).trim(),
+        name: name ? String(name).trim() || null : null,
         email: email ? String(email).trim().toLowerCase() : null,
         locale: locale || "en",
         rsvp_token: generateToken(),

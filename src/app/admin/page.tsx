@@ -16,8 +16,8 @@ type Rsvp = {
 
 type Guest = {
   id: string;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   locale: "en" | "zh";
   rsvp_token: string;
   invite_sent: boolean;
@@ -163,7 +163,7 @@ export default function AdminPage() {
 
   async function handleAddGuest(e: React.FormEvent) {
     e.preventDefault();
-    if (!newGuest.name.trim()) return;
+    // Allow blank invitation (no name, no email)
     setAddingGuest(true);
     try {
       const res = await fetch("/api/admin/guests", {
@@ -412,14 +412,13 @@ export default function AdminPage() {
             {/* Add guest form */}
             <form onSubmit={handleAddGuest} className="flex flex-wrap gap-3 mb-6 items-end">
               <div className="flex-1 min-w-[140px]">
-                <label className="block text-xs text-stone-500 mb-1">Name</label>
+                <label className="block text-xs text-stone-500 mb-1">Name <span className="text-stone-400">(optional)</span></label>
                 <input
                   type="text"
                   value={newGuest.name}
                   onChange={(e) => setNewGuest((g) => ({ ...g, name: e.target.value }))}
                   className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm"
                   placeholder="Guest name"
-                  required
                 />
               </div>
               <div className="flex-1 min-w-[180px]">
@@ -485,7 +484,7 @@ export default function AdminPage() {
                   <tbody>
                     {guests.map((g) => (
                       <tr key={g.id} className="border-b border-stone-100">
-                        <td className="p-3">{g.name}</td>
+                        <td className="p-3">{g.name?.trim() || <span className="text-stone-400 italic">Blank invitation</span>}</td>
                         <td className="p-3">{g.email || <span className="text-stone-400 italic">No email</span>}</td>
                         <td className="p-3">{g.locale === "zh" ? "中文" : "EN"}</td>
                         <td className="p-3">
@@ -503,7 +502,15 @@ export default function AdminPage() {
                             onClick={() => {
                               const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                               const url = `${base}/?token=${encodeURIComponent(g.rsvp_token)}&lang=${g.locale}`;
-                              navigator.clipboard.writeText(url).then(() => {
+                              const name = g.name?.trim();
+                              const msg = name
+                                ? (g.locale === "zh"
+                                  ? `嗨 ${name}！诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
+                                  : `Hi ${name}! You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`)
+                                : (g.locale === "zh"
+                                  ? `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
+                                  : `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`);
+                              navigator.clipboard.writeText(msg).then(() => {
                                 setCopiedId(g.id);
                                 setTimeout(() => setCopiedId(null), 2000);
                               });
@@ -520,7 +527,7 @@ export default function AdminPage() {
                             {sendingIds.has(g.id) ? "Sending…" : g.invite_sent ? "Resend" : "Send"}
                           </button>
                           <button
-                            onClick={() => handleDeleteGuest(g.id, g.name)}
+                            onClick={() => handleDeleteGuest(g.id, g.name?.trim() || "Blank invitation")}
                             className="text-xs text-red-400 hover:text-red-600 transition-colors"
                           >
                             Delete

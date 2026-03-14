@@ -58,6 +58,9 @@ export async function POST(request: Request) {
     if (guestErr || !guest) {
       return NextResponse.json({ error: "Invalid RSVP token" }, { status: 403 });
     }
+    if (!guest.email) {
+      return NextResponse.json({ error: "Email required — please complete verification first" }, { status: 400 });
+    }
 
     const isAttending = !!attending;
     const count = Math.max(1, Math.min(20, Number(guest_count) || 1));
@@ -67,7 +70,7 @@ export async function POST(request: Request) {
       .upsert(
         {
           guest_id: guest.id,
-          primary_name: guest.name,
+          primary_name: guest.name || "Guest",
           email: guest.email,
           attending: isAttending,
           guest_count: count,
@@ -86,7 +89,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await sendConfirmation(guest.email, guest.name, isAttending, count, guest.locale as "en" | "zh", token);
+    await sendConfirmation(guest.email, guest.name || "Guest", isAttending, count, guest.locale as "en" | "zh", token);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

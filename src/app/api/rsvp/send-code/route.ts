@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/send-email";
 
 export async function POST(request: Request) {
   try {
-    const { token, email: providedEmail } = await request.json();
+    const { token, email: providedEmail, name: providedName } = await request.json();
     if (!token) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
@@ -24,20 +24,12 @@ export async function POST(request: Request) {
     }
 
     let emailToUse = guest.email;
+    let nameToUse = guest.name;
 
     if (!emailToUse && providedEmail) {
       const cleaned = String(providedEmail).trim().toLowerCase();
       if (!cleaned || !cleaned.includes("@")) {
         return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
-      }
-      const { error: emailErr } = await supabase
-        .from("guests")
-        .update({ email: cleaned })
-        .eq("id", guest.id);
-
-      if (emailErr) {
-        console.error("Failed to save guest email:", emailErr);
-        return NextResponse.json({ error: "Server error" }, { status: 500 });
       }
       emailToUse = cleaned;
     }
@@ -46,11 +38,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
 
+    if (!nameToUse && providedName) {
+      const cleaned = String(providedName).trim();
+      if (cleaned) nameToUse = cleaned;
+    }
+
     const code = String(Math.floor(100000 + Math.random() * 900000));
+
+    const updatePayload: { verify_code: string; email?: string; name?: string } = { verify_code: code };
+    if (emailToUse && !guest.email) updatePayload.email = emailToUse;
+    if (nameToUse && !guest.name) updatePayload.name = nameToUse;
 
     const { error: updateErr } = await supabase
       .from("guests")
-      .update({ verify_code: code })
+      .update(updatePayload)
       .eq("id", guest.id);
 
     if (updateErr) {
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     }
 
     const { subject, html, text } = buildVerifyCodeEmail({
-      guestName: guest.name,
+      guestName: nameToUse || "Guest",
       locale: (guest.locale as "en" | "zh") || "en",
       code,
     });
