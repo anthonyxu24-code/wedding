@@ -38,6 +38,7 @@ function RsvpPageInner() {
   const [codeInput, setCodeInput] = useState("");
   const [codeVerifying, setCodeVerifying] = useState(false);
   const [codeError, setCodeError] = useState("");
+  const [selfEmail, setSelfEmail] = useState("");
 
   const [step, setStep] = useState<Step>("form");
   const [isUpdate, setIsUpdate] = useState(false);
@@ -175,13 +176,14 @@ function RsvpPageInner() {
   }
 
   async function handleSendCode() {
+    if (!guest?.email && !selfEmail.trim()) return;
     setCodeSending(true);
     setCodeError("");
     try {
       const res = await fetch("/api/rsvp/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, email: guest?.email ? undefined : selfEmail.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send code");
@@ -227,20 +229,33 @@ function RsvpPageInner() {
               {lang.rsvp}
             </h1>
             <p className="text-sm text-[var(--muted)]">
-              {guest.name} &middot; {guest.email}
+              {guest.name}{guest.email ? ` \u00b7 ${guest.email}` : ""}
             </p>
 
             {!codeSent ? (
               <div className="space-y-4">
                 <p className="text-sm text-[var(--muted)] leading-relaxed max-w-xs mx-auto">
-                  {guest.locale === "zh"
-                    ? "我们需要验证您的电子邮箱才能继续"
-                    : "We need to verify your email to continue"}
+                  {guest.email
+                    ? (guest.locale === "zh"
+                      ? "我们需要验证您的电子邮箱才能继续"
+                      : "We need to verify your email to continue")
+                    : (guest.locale === "zh"
+                      ? "请输入您的电子邮箱以接收验证码"
+                      : "Please enter your email to receive a verification code")}
                 </p>
+                {!guest.email && (
+                  <input
+                    type="email"
+                    value={selfEmail}
+                    onChange={(e) => setSelfEmail(e.target.value)}
+                    placeholder={guest.locale === "zh" ? "您的电子邮箱" : "Your email address"}
+                    className="w-full max-w-xs mx-auto block px-0 py-3 text-center bg-transparent border-0 border-b border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] transition-colors"
+                  />
+                )}
                 <button
                   type="button"
                   onClick={handleSendCode}
-                  disabled={codeSending}
+                  disabled={codeSending || (!guest.email && !selfEmail.trim())}
                   className="w-full max-w-xs mx-auto min-h-[44px] py-3 text-sm rounded-lg border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:shadow-md active:scale-[0.97] transition-all duration-200 disabled:opacity-50 block"
                 >
                   {codeSending ? lang.sending : lang.sendVerifyCode}

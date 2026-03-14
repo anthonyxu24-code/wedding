@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/send-email";
 
 export async function POST(request: Request) {
   try {
-    const { token } = await request.json();
+    const { token, email: providedEmail } = await request.json();
     if (!token) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
@@ -21,6 +21,29 @@ export async function POST(request: Request) {
 
     if (guestErr || !guest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 404 });
+    }
+
+    let emailToUse = guest.email;
+
+    if (!emailToUse && providedEmail) {
+      const cleaned = String(providedEmail).trim().toLowerCase();
+      if (!cleaned || !cleaned.includes("@")) {
+        return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
+      }
+      const { error: emailErr } = await supabase
+        .from("guests")
+        .update({ email: cleaned })
+        .eq("id", guest.id);
+
+      if (emailErr) {
+        console.error("Failed to save guest email:", emailErr);
+        return NextResponse.json({ error: "Server error" }, { status: 500 });
+      }
+      emailToUse = cleaned;
+    }
+
+    if (!emailToUse) {
+      return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
 
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -41,9 +64,9 @@ export async function POST(request: Request) {
       code,
     });
 
-    await sendEmail({ to: guest.email, subject, html, text });
+    await sendEmail({ to: emailToUse, subject, html, text });
 
-    const masked = guest.email.replace(/^(.{2})(.*)(@.*)$/, (_m, a, b, c) => a + b.replace(/./g, "*") + c);
+    const masked = emailToUse.replace(/^(.{2})(.*)(@.*)$/, (_m: string, a: string, b: string, c: string) => a + b.replace(/./g, "*") + c);
 
     return NextResponse.json({ ok: true, email: masked });
   } catch (e) {

@@ -7,7 +7,7 @@
 create table if not exists public.guests (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  email text not null,
+  email text,
   locale text not null default 'en' check (locale in ('en', 'zh')),
   rsvp_token text unique not null default gen_random_uuid()::text,
   verify_code text,

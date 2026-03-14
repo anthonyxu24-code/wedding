@@ -163,7 +163,7 @@ export default function AdminPage() {
 
   async function handleAddGuest(e: React.FormEvent) {
     e.preventDefault();
-    if (!newGuest.name.trim() || !newGuest.email.trim()) return;
+    if (!newGuest.name.trim()) return;
     setAddingGuest(true);
     try {
       const res = await fetch("/api/admin/guests", {
@@ -423,14 +423,13 @@ export default function AdminPage() {
                 />
               </div>
               <div className="flex-1 min-w-[180px]">
-                <label className="block text-xs text-stone-500 mb-1">Email</label>
+                <label className="block text-xs text-stone-500 mb-1">Email <span className="text-stone-400">(optional)</span></label>
                 <input
                   type="email"
                   value={newGuest.email}
                   onChange={(e) => setNewGuest((g) => ({ ...g, email: e.target.value }))}
                   className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm"
                   placeholder="email@example.com"
-                  required
                 />
               </div>
               <div className="w-24">
@@ -487,7 +486,7 @@ export default function AdminPage() {
                     {guests.map((g) => (
                       <tr key={g.id} className="border-b border-stone-100">
                         <td className="p-3">{g.name}</td>
-                        <td className="p-3">{g.email}</td>
+                        <td className="p-3">{g.email || <span className="text-stone-400 italic">No email</span>}</td>
                         <td className="p-3">{g.locale === "zh" ? "中文" : "EN"}</td>
                         <td className="p-3">
                           {g.invite_sent ? (

@@ -34,8 +34,8 @@ export async function POST(request: Request) {
 
   try {
     const { name, email, locale } = await request.json();
-    if (!name || !email) {
-      return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
     if (locale && !["en", "zh"].includes(locale)) {
       return NextResponse.json({ error: "Locale must be 'en' or 'zh'" }, { status: 400 });
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       .from("guests")
       .insert({
         name: String(name).trim(),
-        email: String(email).trim().toLowerCase(),
+        email: email ? String(email).trim().toLowerCase() : null,
         locale: locale || "en",
         rsvp_token: generateToken(),
       })
