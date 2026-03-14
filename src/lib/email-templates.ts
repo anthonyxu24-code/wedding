@@ -43,20 +43,38 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 <body style="margin:0;padding:0;background:#fafaf9;">
 <div style="${SHARED_STYLES.wrapper}">
 
-  <img src="${SITE_URL}/${isZh ? "InvitationChinese.jpg" : "InvitationEnglish.jpg"}" alt="Cindy & Anthony" style="${SHARED_STYLES.coverImg}" width="480" />
+  <h1 style="${SHARED_STYLES.heading}">Cindy & Anthony</h1>
+  <p style="${SHARED_STYLES.subheading}">${isZh ? "诚挚邀请您参加我们的婚礼" : "Request the honour of your presence at their wedding"}</p>
+
+  <hr style="${SHARED_STYLES.divider}" />
 
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "尊敬的" : "Dear"} ${guestName},</strong></p>
   <p style="${SHARED_STYLES.detailMuted}">${isZh
-    ? "我们诚挚邀请您参加我们的婚礼。"
-    : "We would be honoured to have you celebrate with us."}</p>
+    ? "我们诚挚邀请您参加我们的婚礼，与我们一同分享这特别的时刻。"
+    : "We would be honoured to have you celebrate this special day with us."}</p>
 
-  <a href="${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}" style="${SHARED_STYLES.primaryBtn}" target="_blank">${isZh ? "查看邀请" : "View Invitation"}</a>
+  <hr style="${SHARED_STYLES.divider}" />
 
-  <a href="${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;" target="_blank">${isZh ? "立即回复" : "RSVP Now"}</a>
+  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "日期" : "Date"}</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "2026年4月10日（星期五）" : "Friday, April 10, 2026"}</p>
 
-  <img src="${SITE_URL}/SpriteAndMilkyCut.jpg" alt="${isZh ? "一起庆祝爱情" : "Let's celebrate love together!"}" style="${SHARED_STYLES.coverImg}margin-top:16px;" width="480" />
+  <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "时间" : "Time"}</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "下午 3:00 – 8:30" : "3:00 PM – 8:30 PM"}</p>
+  <p style="font-size:13px;text-align:center;color:#71717a;font-style:italic;margin:2px 0 0;">${isZh ? "请于下午2:00前到达，届时将有人引导您前往教堂" : "Please arrive by 2:00 PM to be directed to the chapel"}</p>
 
-  <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;">
+  <p style="${SHARED_STYLES.detail};margin-top:12px;"><strong>${isZh ? "地点" : "Venue"}</strong></p>
+  <p style="${SHARED_STYLES.detailMuted}">${isZh ? "京都四季酒店" : "Four Seasons Hotel Kyoto"}</p>
+  <p style="font-size:12px;text-align:center;color:#a1a1aa;margin:2px 0;">445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan</p>
+
+  <hr style="${SHARED_STYLES.divider}" />
+
+  <a href="${viewUrl}" style="${SHARED_STYLES.primaryBtn}">${isZh ? "查看邀请" : "View Invitation"}</a>
+
+  <a href="${rsvpUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;">${isZh ? "立即回复" : "RSVP Now"}</a>
+
+  <img src="${SITE_URL}/SpriteAndMilkyCut.jpg" alt="${isZh ? "Sprite & Milky" : "Sprite & Milky"}" style="display:block;max-width:280px;height:auto;margin:20px auto 0;border-radius:8px;" width="280" />
+
+  <div style="text-align:center;padding:14px 20px;margin:20px auto;background:#f5f5f4;max-width:300px;border-radius:6px;">
     <p style="font-size:12px;color:#71717a;margin:0 0 4px;">${isZh ? "网站密码" : "Website Password"}</p>
     <p style="font-size:18px;font-weight:700;color:#1c1c1c;margin:0;letter-spacing:0.5px;">Hagabooga</p>
   </div>
@@ -65,15 +83,17 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 
   <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "了解更多" : "Explore"}</p>
   <div style="text-align:center;">
-    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
-    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "地点与交通" : "Location & Travel"}</a>
-    <a href="${linkUrl("/registry", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "礼品" : "Registry"}</a>
+    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
+    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "地点与交通" : "Location & Travel"}</a>
   </div>
 
   <hr style="${SHARED_STYLES.divider}" />
   <p style="${SHARED_STYLES.footer}">${isZh
     ? "Cindy & Anthony · 2026年4月10日 · 京都"
     : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>
+  <p style="font-size:11px;text-align:center;color:#d4d4d8;margin:8px 0 0;">${isZh
+    ? "此邮件发送给 ${guestName}，因为您被邀请参加 Cindy & Anthony 的婚礼。"
+    : "This email was sent to ${guestName} because you were invited to Cindy & Anthony's wedding."}</p>
 </div>
 </body>
 </html>`;
@@ -130,7 +150,7 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
     ${attendingText}
   </div>
 
-  <a href="${rsvpEditUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;margin-bottom:24px;" target="_blank">${isZh ? "修改我的回复" : "Edit Your Response"}</a>
+  <a href="${rsvpEditUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;margin-top:0;margin-bottom:24px;">${isZh ? "修改我的回复" : "Edit Your Response"}</a>
 
   ${attending ? `
   <p style="${SHARED_STYLES.detail}"><strong>${isZh ? "2026年4月10日" : "April 10, 2026"}</strong></p>
@@ -142,9 +162,9 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
 
   <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "准备您的旅程" : "Prepare for your trip"}</p>
   <div style="text-align:center;">
-    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
-    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "地点与交通" : "Location & Travel"}</a>
-    <a href="${linkUrl("/registry", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "礼品" : "Registry"}</a>
+    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
+    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "地点与交通" : "Location & Travel"}</a>
+    <a href="${linkUrl("/registry", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "礼品" : "Registry"}</a>
   </div>
   ` : `
   <p style="${SHARED_STYLES.detailMuted}">${isZh
@@ -156,6 +176,9 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
   <p style="${SHARED_STYLES.footer}">${isZh
     ? "Cindy & Anthony · 2026年4月10日 · 京都"
     : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>
+  <p style="font-size:11px;text-align:center;color:#d4d4d8;margin:8px 0 0;">${isZh
+    ? "此邮件发送给 ${guestName}，因为您回复了 Cindy & Anthony 的婚礼邀请。"
+    : "This email was sent to ${guestName} because you responded to Cindy & Anthony's wedding invitation."}</p>
 </div>
 </body>
 </html>`;
@@ -211,16 +234,19 @@ export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: 
 
   <p style="font-size:13px;text-align:center;color:#71717a;margin:0 0 12px;">${isZh ? "准备您的旅程" : "Prepare for your trip"}</p>
   <div style="text-align:center;">
-    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
-    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}" target="_blank">${isZh ? "地点与交通" : "Location & Travel"}</a>
+    <a href="${linkUrl("/details", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "着装与日程" : "Attire & Itinerary"}</a>
+    <a href="${linkUrl("/location", locale)}" style="${SHARED_STYLES.secondaryBtn}">${isZh ? "地点与交通" : "Location & Travel"}</a>
   </div>
 
-  <a href="${rsvpEditUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;" target="_blank">${isZh ? "修改我的回复" : "Edit Your RSVP"}</a>
+  <a href="${rsvpEditUrl}" style="${SHARED_STYLES.primaryBtn}background:transparent;color:#1c1c1c;border:1px solid #1c1c1c;">${isZh ? "修改我的回复" : "Edit Your RSVP"}</a>
 
   <hr style="${SHARED_STYLES.divider}" />
   <p style="${SHARED_STYLES.footer}">${isZh
     ? "Cindy & Anthony · 2026年4月10日 · 京都"
     : "Cindy & Anthony · April 10, 2026 · Kyoto"}</p>
+  <p style="font-size:11px;text-align:center;color:#d4d4d8;margin:8px 0 0;">${isZh
+    ? `此邮件发送给 ${guestName}，因为您确认出席 Cindy & Anthony 的婚礼。`
+    : `This email was sent to ${guestName} because you confirmed attendance at Cindy & Anthony's wedding.`}</p>
 </div>
 </body>
 </html>`;

@@ -32,6 +32,14 @@ export async function sendEmail({
     text,
     headers: {
       "List-Unsubscribe": `<mailto:${FROM_ADDRESS}?subject=unsubscribe>`,
+      "X-Priority": "3",
+    },
+    trackingSettings: {
+      clickTracking: { enable: false, enableText: false },
+      openTracking: { enable: false },
+    },
+    mailSettings: {
+      bypassListManagement: { enable: true },
     },
   });
 }
