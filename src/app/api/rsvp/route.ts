@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
-import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildConfirmationEmail } from "@/lib/email-templates";
-
-const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
+import { sendEmail } from "@/lib/send-email";
 
 async function sendConfirmation(email: string, name: string, attending: boolean, guestCount: number, locale: "en" | "zh", rsvpToken: string) {
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) return;
-
   try {
-    sgMail.setApiKey(apiKey);
-
-    const { subject, html } = buildConfirmationEmail({
+    const { subject, html, text } = buildConfirmationEmail({
       guestName: name,
       locale,
       attending,
@@ -20,7 +13,7 @@ async function sendConfirmation(email: string, name: string, attending: boolean,
       rsvpToken,
     });
 
-    await sgMail.send({ to: email, from: FROM_ADDRESS, subject, html });
+    await sendEmail({ to: email, subject, html, text });
   } catch (e) {
     console.error("Confirmation email error (non-blocking):", e);
   }

@@ -23,12 +23,19 @@ interface InviteEmailData {
   rsvpToken: string;
 }
 
-export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailData): { subject: string; html: string } {
+export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailData): { subject: string; html: string; text: string } {
   const isZh = locale === "zh";
 
   const subject = isZh
     ? "Cindy & Anthony 婚礼邀请"
     : "You're Invited — Cindy & Anthony's Wedding";
+
+  const rsvpUrl = `${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}`;
+  const viewUrl = `${SITE_URL}/?token=${encodeURIComponent(rsvpToken)}&lang=${locale}`;
+
+  const text = isZh
+    ? `尊敬的 ${guestName},\n\n我们诚挚邀请您参加 Cindy & Anthony 的婚礼。\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n查看邀请：${viewUrl}\nRSVP：${rsvpUrl}\n\n网站密码：Hagabooga\n\nCindy & Anthony`
+    : `Dear ${guestName},\n\nWe would be honoured to have you celebrate with us at Cindy & Anthony's wedding.\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nView Invitation: ${viewUrl}\nRSVP: ${rsvpUrl}\n\nWebsite Password: Hagabooga\n\nCindy & Anthony`;
 
   const html = `<!DOCTYPE html>
 <html lang="${locale}">
@@ -71,7 +78,7 @@ export function buildInviteEmail({ guestName, locale, rsvpToken }: InviteEmailDa
 </body>
 </html>`;
 
-  return { subject, html };
+  return { subject, html, text };
 }
 
 interface ConfirmationEmailData {
@@ -82,7 +89,7 @@ interface ConfirmationEmailData {
   rsvpToken: string;
 }
 
-export function buildConfirmationEmail({ guestName, locale, attending, guestCount, rsvpToken }: ConfirmationEmailData): { subject: string; html: string } {
+export function buildConfirmationEmail({ guestName, locale, attending, guestCount, rsvpToken }: ConfirmationEmailData): { subject: string; html: string; text: string } {
   const rsvpEditUrl = `${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}`;
 
   const isZh = locale === "zh";
@@ -90,6 +97,14 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
   const subject = isZh
     ? "感谢您的回复 — Cindy & Anthony"
     : "Thank You for Your RSVP — Cindy & Anthony";
+
+  const attendingPlain = attending
+    ? (isZh ? `出席 · ${guestCount} 位宾客` : `Attending · ${guestCount} guest${guestCount > 1 ? "s" : ""}`)
+    : (isZh ? "无法出席" : "Unable to attend");
+
+  const text = isZh
+    ? `尊敬的 ${guestName},\n\n我们已收到您的回复，谢谢！\n\n状态：${attendingPlain}\n\n修改您的回复：${rsvpEditUrl}\n\nCindy & Anthony · 2026年4月10日 · 京都`
+    : `Dear ${guestName},\n\nWe've received your RSVP — thank you!\n\nStatus: ${attendingPlain}\n\nEdit your response: ${rsvpEditUrl}\n\nCindy & Anthony · April 10, 2026 · Kyoto`;
 
   const attendingText = attending
     ? (isZh ? `✓ 出席 · ${guestCount} 位宾客` : `✓ Attending · ${guestCount} guest${guestCount > 1 ? "s" : ""}`)
@@ -144,7 +159,7 @@ export function buildConfirmationEmail({ guestName, locale, attending, guestCoun
 </body>
 </html>`;
 
-  return { subject, html };
+  return { subject, html, text };
 }
 
 interface ReminderEmailData {
@@ -154,7 +169,7 @@ interface ReminderEmailData {
   rsvpToken: string;
 }
 
-export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: ReminderEmailData): { subject: string; html: string } {
+export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: ReminderEmailData): { subject: string; html: string; text: string } {
   const isZh = locale === "zh";
   const rsvpEditUrl = `${SITE_URL}/rsvp?token=${encodeURIComponent(rsvpToken)}`;
 
@@ -208,5 +223,9 @@ export function buildReminderEmail({ guestName, locale, daysUntil, rsvpToken }: 
 </body>
 </html>`;
 
-  return { subject, html };
+  const text = isZh
+    ? `尊敬的 ${guestName},\n\n距离我们的婚礼还有 ${daysUntil} 天！\n\n日期：2026年4月10日\n时间：下午 3:00 – 8:30\n地点：京都四季酒店\n地址：445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\n修改您的回复：${rsvpEditUrl}\n\nCindy & Anthony`
+    : `Dear ${guestName},\n\nOnly ${daysUntil} day${daysUntil > 1 ? "s" : ""} until our wedding!\n\nDate: April 10, 2026\nTime: 3:00 PM – 8:30 PM\nVenue: Four Seasons Hotel Kyoto\nAddress: 445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto\n\nEdit your RSVP: ${rsvpEditUrl}\n\nCindy & Anthony`;
+
+  return { subject, html, text };
 }

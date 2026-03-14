@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { buildReminderEmail } from "@/lib/email-templates";
+import { sendEmail } from "@/lib/send-email";
 
 export const dynamic = "force-dynamic";
 
 const WEDDING_DATE = new Date("2026-04-10T00:00:00Z");
 const MILESTONES = [30, 14, 7];
-const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
 
 function getDaysUntilWedding(): number {
   const now = new Date();
@@ -20,11 +19,6 @@ export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "SENDGRID_API_KEY not configured" }, { status: 503 });
   }
 
   const daysUntil = getDaysUntilWedding();
@@ -78,7 +72,6 @@ export async function GET(request: Request) {
       (guests || []).map((g) => [g.id, { locale: g.locale, rsvp_token: g.rsvp_token }])
     );
 
-    sgMail.setApiKey(apiKey);
     let sentCount = 0;
     let failCount = 0;
 
@@ -87,14 +80,14 @@ export async function GET(request: Request) {
       if (!guestInfo) continue;
 
       try {
-        const { subject, html } = buildReminderEmail({
+        const { subject, html, text } = buildReminderEmail({
           guestName: rsvp.primary_name,
           locale: (guestInfo.locale as "en" | "zh") || "en",
           daysUntil: matchedMilestone,
           rsvpToken: guestInfo.rsvp_token,
         });
 
-        await sgMail.send({ to: rsvp.email, from: FROM_ADDRESS, subject, html });
+        await sendEmail({ to: rsvp.email, subject, html, text });
         sentCount++;
       } catch (e) {
         console.error(`Reminder send error for ${rsvp.email}:`, e);

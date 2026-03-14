@@ -1,24 +1,15 @@
 import { NextResponse } from "next/server";
-import sgMail from "@sendgrid/mail";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { authorizeAdmin } from "@/lib/admin-auth";
 import { buildInviteEmail } from "@/lib/email-templates";
-
-const FROM_ADDRESS = process.env.SENDGRID_FROM || "wedding@example.com";
+import { sendEmail } from "@/lib/send-email";
 
 export async function POST(request: Request) {
   if (!(await authorizeAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "SENDGRID_API_KEY not configured" }, { status: 503 });
-  }
-
   try {
-    sgMail.setApiKey(apiKey);
-
     const { guestIds } = await request.json();
     if (!Array.isArray(guestIds) || guestIds.length === 0) {
       return NextResponse.json({ error: "Provide guestIds array" }, { status: 400 });
@@ -38,18 +29,13 @@ export async function POST(request: Request) {
 
     for (const guest of guests) {
       try {
-        const { subject, html } = buildInviteEmail({
+        const { subject, html, text } = buildInviteEmail({
           guestName: guest.name,
           locale: guest.locale as "en" | "zh",
           rsvpToken: guest.rsvp_token,
         });
 
-        await sgMail.send({
-          to: guest.email,
-          from: FROM_ADDRESS,
-          subject,
-          html,
-        });
+        await sendEmail({ to: guest.email, subject, html, text });
 
         await supabase
           .from("guests")
