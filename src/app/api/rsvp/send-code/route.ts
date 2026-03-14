@@ -106,11 +106,18 @@ export async function POST(request: Request) {
 
     await sendEmail({ to: emailToUse, subject, html, text });
 
-    const masked = emailToUse.replace(/^(.{2})(.*)(@.*)$/, (_m: string, a: string, b: string, c: string) => a + b.replace(/./g, "*") + c);
+    const atIdx = emailToUse.indexOf("@");
+    const masked = atIdx > 2
+      ? emailToUse.slice(0, 2) + "***" + emailToUse.slice(atIdx)
+      : emailToUse.slice(0, 1) + "***" + (atIdx > 0 ? emailToUse.slice(atIdx) : "");
 
     return NextResponse.json({ ok: true, email: masked, token: !token ? guestToken : undefined });
   } catch (e) {
     console.error("Send code error:", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json(
+      { error: msg.includes("SENDGRID") ? "Email not configured" : msg },
+      { status: 500 }
+    );
   }
 }
