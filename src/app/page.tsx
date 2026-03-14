@@ -70,9 +70,23 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      setHasRsvped(localStorage.getItem("hasRsvped") === "1");
-      const savedToken = localStorage.getItem("rsvpToken");
+      const urlToken = new URLSearchParams(window.location.search).get("token");
+      const savedToken = urlToken || localStorage.getItem("rsvpToken");
       if (savedToken) setRsvpHref(`/rsvp?token=${encodeURIComponent(savedToken)}`);
+
+      if (urlToken) {
+        // Arriving via invitation link -- check if THIS token has an RSVP
+        fetch(`/api/rsvp/guest?token=${encodeURIComponent(urlToken)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            const rsvped = !!data?.rsvp;
+            setHasRsvped(rsvped);
+            try { localStorage.setItem("hasRsvped", rsvped ? "1" : "0"); } catch {}
+          })
+          .catch(() => setHasRsvped(false));
+      } else {
+        setHasRsvped(localStorage.getItem("hasRsvped") === "1");
+      }
     } catch {
       setHasRsvped(false);
     }
