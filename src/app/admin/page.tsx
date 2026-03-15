@@ -43,7 +43,9 @@ type OverviewRow = {
   rsvpId: string | null;
   name: string;
   email: string;
+  locale: "en" | "zh" | null;
   inviteSent: boolean;
+  inviteSentAt: string | null;
   status: "attending" | "declined" | "not_responded";
   invitedCount: number;
   attendingCount: number;
@@ -52,6 +54,8 @@ type OverviewRow = {
   guestNames: string[];
   guest?: Guest;
 };
+
+type SortKey = "name" | "email" | "locale" | "inviteSentAt" | "status" | "invitedCount" | "attendingCount";
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -73,6 +77,8 @@ export default function AdminPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sendAllLoading, setSendAllLoading] = useState(false);
   const [expandedOverview, setExpandedOverview] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortKey>("inviteSentAt");
+  const [sortAsc, setSortAsc] = useState(false);
 
   // Gifts state
   const [gifts, setGifts] = useState<Gift[]>([]);
@@ -326,7 +332,9 @@ export default function AdminPage() {
         rsvpId: r?.id ?? null,
         name: g.name?.trim() || "Blank invitation",
         email: g.email || "—",
+        locale: g.locale,
         inviteSent: g.invite_sent,
+        inviteSentAt: g.invite_sent_at,
         status,
         invitedCount: 1,
         attendingCount: r?.attending ? r.guest_count : 0,
@@ -344,7 +352,9 @@ export default function AdminPage() {
         rsvpId: r.id,
         name: r.primary_name,
         email: r.email,
+        locale: null,
         inviteSent: false,
+        inviteSentAt: null,
         status: r.attending ? "attending" : "declined",
         invitedCount: 1,
         attendingCount: r.attending ? r.guest_count : 0,
@@ -354,12 +364,30 @@ export default function AdminPage() {
       })),
   ];
 
+  const sortedRows = [...overviewRows].sort((a, b) => {
+    let cmp = 0;
+    if (sortBy === "inviteSentAt") {
+      const aVal = a.inviteSentAt ?? "";
+      const bVal = b.inviteSentAt ?? "";
+      cmp = aVal.localeCompare(bVal);
+      if (cmp === 0) cmp = (a.inviteSentAt ? 1 : 0) - (b.inviteSentAt ? 1 : 0);
+    } else if (sortBy === "name" || sortBy === "email" || sortBy === "locale" || sortBy === "status") {
+      const va = sortBy === "name" ? a.name.toLowerCase() : sortBy === "email" ? a.email.toLowerCase() : sortBy === "locale" ? (a.locale ?? "") : a.status;
+      const vb = sortBy === "name" ? b.name.toLowerCase() : sortBy === "email" ? b.email.toLowerCase() : sortBy === "locale" ? (b.locale ?? "") : b.status;
+      cmp = String(va).localeCompare(String(vb));
+    } else {
+      cmp = (a[sortBy] as number) - (b[sortBy] as number);
+    }
+    return sortAsc ? cmp : -cmp;
+  });
+
   function exportToCsv() {
-    const headers = ["Name", "Email", "Invite Sent", "Response", "# Invited", "# Attending", "Message", "Address"];
+    const headers = ["Name", "Email", "Lang", "Invite Sent", "Response", "# Invited", "# Attending", "Message", "Address"];
     const rows = overviewRows.map((r) => [
       r.name,
       r.email,
-      r.inviteSent ? "Yes" : "No",
+      r.locale === "zh" ? "中文" : r.locale === "en" ? "EN" : "—",
+      r.inviteSentAt ? new Date(r.inviteSentAt).toLocaleDateString() : "—",
       r.status === "attending" ? "Attending" : r.status === "declined" ? "Declined" : "Not responded",
       r.invitedCount,
       r.attendingCount,
@@ -514,17 +542,26 @@ export default function AdminPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-stone-200 bg-stone-50">
-                    <th className="p-3 font-medium text-stone-700">Guest</th>
-                    <th className="p-3 font-medium text-stone-700">Email</th>
-                    <th className="p-3 font-medium text-stone-700">Invite Sent</th>
-                    <th className="p-3 font-medium text-stone-700">Response</th>
-                    <th className="p-3 font-medium text-stone-700"># Invited</th>
-                    <th className="p-3 font-medium text-stone-700"># Attending</th>
+                    {(["name", "email", "locale", "inviteSentAt", "status", "invitedCount", "attendingCount"] as const).map((key) => (
+                      <th
+                        key={key}
+                        onClick={() => {
+                          if (sortBy === key) setSortAsc((p) => !p);
+                          else { setSortBy(key); setSortAsc(key === "inviteSentAt" || key === "invitedCount" || key === "attendingCount" ? false : true); }
+                        }}
+                        className="p-3 font-medium text-stone-700 cursor-pointer hover:bg-stone-100 select-none"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          {key === "name" ? "Guest" : key === "email" ? "Email" : key === "locale" ? "Lang" : key === "inviteSentAt" ? "Sent" : key === "status" ? "Response" : key === "invitedCount" ? "# Invited" : "# Attending"}
+                          {sortBy === key && <span className="text-stone-500">{sortAsc ? "↑" : "↓"}</span>}
+                        </span>
+                      </th>
+                    ))}
                     <th className="p-3 font-medium text-stone-700">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {overviewRows.map((row) => (
+                  {sortedRows.map((row) => (
                     <React.Fragment key={row.id}>
                       <tr
                         className={`border-b border-stone-100 hover:bg-stone-50 ${(row.message || row.address || row.guestNames.length) ? "cursor-pointer" : ""}`}
@@ -532,7 +569,8 @@ export default function AdminPage() {
                       >
                         <td className="p-3">{row.name}</td>
                         <td className="p-3 text-stone-600">{row.email}</td>
-                        <td className="p-3">{row.inviteSent ? "Yes" : "No"}</td>
+                        <td className="p-3">{row.locale === "zh" ? "中文" : row.locale === "en" ? "EN" : "—"}</td>
+                        <td className="p-3">{row.inviteSentAt ? new Date(row.inviteSentAt).toLocaleDateString() : "—"}</td>
                         <td className="p-3">
                           {row.status === "attending" ? (
                             <span className="text-green-600 font-medium">✓ Attending</span>

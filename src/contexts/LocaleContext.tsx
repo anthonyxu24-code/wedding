@@ -34,6 +34,8 @@ export const t: Record<Locale, Record<string, string>> = {
     confirmationEmailNote: "A confirmation email will be sent to your inbox shortly.",
     registryIntro:
       "Your presence is our greatest gift. Should you wish to give, we welcome a contribution toward our honeymoon via the links below.",
+    registryVenueNote:
+      "You're also welcome to give in person at the venue if you prefer.",
     contribute: "Contribute",
     contributeCard: "Pay with Card",
     contributeNotSet: "Contribute (link not set)",
@@ -138,6 +140,8 @@ export const t: Record<Locale, Record<string, string>> = {
     confirmationEmailNote: "确认邮件将很快发送到您的邮箱。",
     registryIntro:
       "您的莅临是我们最好的礼物。若您想送上一份心意，欢迎通过以下链接以礼金的方式表达。",
+    registryVenueNote:
+      "您也可以在婚礼当天现场送上心意。",
     contribute: "礼金",
     contributeCard: "银行卡支付",
     contributeNotSet: "礼金（未设置链接）",

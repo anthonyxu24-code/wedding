@@ -52,8 +52,11 @@ export default function RegistryPage() {
       <div className="max-w-md md:max-w-xl mx-auto py-10 px-4 animate-fade-in">
 
         <div className="text-center">
-          <p className="text-sm text-[var(--muted)] leading-relaxed max-w-md mx-auto mb-8">
+          <p className="text-sm text-[var(--muted)] leading-relaxed max-w-md mx-auto mb-4">
             {lang.registryIntro}
+          </p>
+          <p className="text-sm text-[var(--muted)] italic max-w-md mx-auto mb-8">
+            {lang.registryVenueNote}
           </p>
 
           {hasSuccess && (
