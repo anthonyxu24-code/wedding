@@ -35,11 +35,12 @@ type Gift = {
   created_at: string;
 };
 
-type Tab = "overview" | "rsvps" | "guests" | "gifts";
+type Tab = "overview" | "gifts";
 
 type OverviewRow = {
   id: string;
   guestId: string | null;
+  rsvpId: string | null;
   name: string;
   email: string;
   inviteSent: boolean;
@@ -48,6 +49,8 @@ type OverviewRow = {
   attendingCount: number;
   message: string | null;
   address: string | null;
+  guestNames: string[];
+  guest?: Guest;
 };
 
 export default function AdminPage() {
@@ -69,7 +72,7 @@ export default function AdminPage() {
   const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sendAllLoading, setSendAllLoading] = useState(false);
-  const [expandedRsvp, setExpandedRsvp] = useState<string | null>(null);
+  const [expandedOverview, setExpandedOverview] = useState<string | null>(null);
 
   // Gifts state
   const [gifts, setGifts] = useState<Gift[]>([]);
@@ -115,7 +118,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated && (tab === "guests" || tab === "overview") && guests.length === 0) {
+    if (authenticated && tab === "overview" && guests.length === 0) {
       fetchGuests();
     }
   }, [authenticated, tab, guests.length, fetchGuests]);
@@ -159,20 +162,6 @@ export default function AdminPage() {
     setGuests([]);
   }
 
-  // ── RSVP actions ──
-
-  async function handleDeleteRsvp(id: string, name: string) {
-    if (!confirm(`Delete RSVP from "${name}"?`)) return;
-    try {
-      const res = await fetch("/api/admin/rsvps", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      if (res.ok) setRsvps((prev) => prev.filter((r) => r.id !== id));
-    } catch { /* ignore */ }
-  }
-
   // ── Guest list actions ──
 
   async function handleAddGuest(e: React.FormEvent) {
@@ -194,16 +183,37 @@ export default function AdminPage() {
     finally { setAddingGuest(false); }
   }
 
-  async function handleDeleteGuest(id: string, name: string) {
-    if (!confirm(`Remove "${name}" from guest list?`)) return;
-    try {
-      const res = await fetch("/api/admin/guests", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      if (res.ok) setGuests((prev) => prev.filter((g) => g.id !== id));
-    } catch { /* ignore */ }
+  async function handleDeleteOverviewRow(row: OverviewRow) {
+    if (row.guestId) {
+      if (row.rsvpId && !confirm(`Remove "${row.name}" and their RSVP from the list?`)) return;
+      if (!row.rsvpId && !confirm(`Remove "${row.name}" from guest list?`)) return;
+      try {
+        if (row.rsvpId) {
+          const rRes = await fetch("/api/admin/rsvps", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: row.rsvpId }),
+          });
+          if (rRes.ok) setRsvps((prev) => prev.filter((r) => r.id !== row.rsvpId));
+        }
+        const gRes = await fetch("/api/admin/guests", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: row.guestId }),
+        });
+        if (gRes.ok) setGuests((prev) => prev.filter((g) => g.id !== row.guestId));
+      } catch { /* ignore */ }
+    } else if (row.rsvpId) {
+      if (!confirm(`Delete RSVP from "${row.name}"?`)) return;
+      try {
+        const res = await fetch("/api/admin/rsvps", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: row.rsvpId }),
+        });
+        if (res.ok) setRsvps((prev) => prev.filter((r) => r.id !== row.rsvpId));
+      } catch { /* ignore */ }
+    }
   }
 
   async function handleSendInvites(guestIds: string[]) {
@@ -313,6 +323,7 @@ export default function AdminPage() {
       return {
         id: g.id,
         guestId: g.id,
+        rsvpId: r?.id ?? null,
         name: g.name?.trim() || "Blank invitation",
         email: g.email || "—",
         inviteSent: g.invite_sent,
@@ -321,6 +332,8 @@ export default function AdminPage() {
         attendingCount: r?.attending ? r.guest_count : 0,
         message: r?.message ?? null,
         address: r?.address ?? null,
+        guestNames: Array.isArray(r?.guest_names) ? r.guest_names : [],
+        guest: g,
       };
     }),
     ...rsvps
@@ -328,6 +341,7 @@ export default function AdminPage() {
       .map((r): OverviewRow => ({
         id: r.id,
         guestId: null,
+        rsvpId: r.id,
         name: r.primary_name,
         email: r.email,
         inviteSent: false,
@@ -336,6 +350,7 @@ export default function AdminPage() {
         attendingCount: r.attending ? r.guest_count : 0,
         message: r.message,
         address: r.address,
+        guestNames: Array.isArray(r.guest_names) ? r.guest_names : [],
       })),
   ];
 
@@ -380,23 +395,7 @@ export default function AdminPage() {
               tab === "overview" ? "border-stone-800 text-stone-800" : "border-transparent text-stone-400 hover:text-stone-600"
             }`}
           >
-            Overview
-          </button>
-          <button
-            onClick={() => setTab("rsvps")}
-            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${
-              tab === "rsvps" ? "border-stone-800 text-stone-800" : "border-transparent text-stone-400 hover:text-stone-600"
-            }`}
-          >
-            RSVPs
-          </button>
-          <button
-            onClick={() => setTab("guests")}
-            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${
-              tab === "guests" ? "border-stone-800 text-stone-800" : "border-transparent text-stone-400 hover:text-stone-600"
-            }`}
-          >
-            Guest List {unsentCount > 0 && <span className="ml-1 text-xs text-orange-500">({unsentCount} unsent)</span>}
+            Guests {unsentCount > 0 && <span className="ml-1 text-xs text-orange-500">({unsentCount} unsent)</span>}
           </button>
           <button
             onClick={() => setTab("gifts")}
@@ -415,144 +414,6 @@ export default function AdminPage() {
               <p className="text-center text-stone-500 py-8">Loading…</p>
             ) : (
             <>
-            <div className="mb-6 flex gap-6 flex-wrap items-center">
-              <span className="text-sm text-stone-600">
-                Invited: <strong>{overviewRows.length}</strong>
-              </span>
-              <span className="text-sm text-stone-600">
-                Attending: <strong>{overviewRows.filter((r) => r.status === "attending").length}</strong> responses
-              </span>
-              <span className="text-sm text-stone-600">
-                Total guests: <strong>{overviewRows.reduce((s, r) => s + r.attendingCount, 0)}</strong>
-              </span>
-              <button
-                onClick={exportToCsv}
-                className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-100"
-              >
-                Export to CSV
-              </button>
-            </div>
-            <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-stone-200 bg-stone-50">
-                    <th className="p-3 font-medium text-stone-700">Guest</th>
-                    <th className="p-3 font-medium text-stone-700">Email</th>
-                    <th className="p-3 font-medium text-stone-700">Invite Sent</th>
-                    <th className="p-3 font-medium text-stone-700">Response</th>
-                    <th className="p-3 font-medium text-stone-700"># Invited</th>
-                    <th className="p-3 font-medium text-stone-700"># Attending</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {overviewRows.map((r) => (
-                    <tr key={r.id} className="border-b border-stone-100 hover:bg-stone-50">
-                      <td className="p-3">{r.name}</td>
-                      <td className="p-3 text-stone-600">{r.email}</td>
-                      <td className="p-3">{r.inviteSent ? "Yes" : "No"}</td>
-                      <td className="p-3">
-                        {r.status === "attending" ? (
-                          <span className="text-green-600 font-medium">✓ Attending</span>
-                        ) : r.status === "declined" ? (
-                          <span className="text-red-600">✗ Declined</span>
-                        ) : (
-                          <span className="text-stone-400">— Not responded</span>
-                        )}
-                      </td>
-                      <td className="p-3">{r.invitedCount}</td>
-                      <td className="p-3">{r.attendingCount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {overviewRows.length === 0 && (
-              <p className="text-center text-stone-500 py-8">No guests yet. Add guests in the Guest List tab.</p>
-            )}
-            </>
-            )}
-          </>
-        )}
-
-        {/* ═══ RSVPs Tab ═══ */}
-        {tab === "rsvps" && (
-          <>
-            <div className="mb-6 flex gap-6 text-sm">
-              <span className="text-stone-600">
-                Attending: <strong>{attending.length}</strong> responses
-              </span>
-              <span className="text-stone-600">
-                Total guests: <strong>{totalGuests}</strong>
-              </span>
-            </div>
-            <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-stone-200 bg-stone-50">
-                    <th className="p-3 font-medium text-stone-700">Name</th>
-                    <th className="p-3 font-medium text-stone-700">Email</th>
-                    <th className="p-3 font-medium text-stone-700">Attending</th>
-                    <th className="p-3 font-medium text-stone-700">Guests</th>
-                    <th className="p-3 font-medium text-stone-700">Date</th>
-                    <th className="p-3 font-medium text-stone-700"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rsvps.map((r) => (
-                    <React.Fragment key={r.id}>
-                      <tr
-                        className="border-b border-stone-100 cursor-pointer hover:bg-stone-50 transition-colors"
-                        onClick={() => setExpandedRsvp(expandedRsvp === r.id ? null : r.id)}
-                      >
-                        <td className="p-3">{r.primary_name}</td>
-                        <td className="p-3">{r.email}</td>
-                        <td className="p-3">{r.attending ? "Yes" : "No"}</td>
-                        <td className="p-3">{r.guest_count ?? 1}</td>
-                        <td className="p-3 text-stone-500">{new Date(r.created_at).toLocaleDateString()}</td>
-                        <td className="p-3 flex gap-3 items-center">
-                          <span className="text-xs text-stone-400">{expandedRsvp === r.id ? "▲" : "▼"}</span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteRsvp(r.id, r.primary_name); }}
-                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                      {expandedRsvp === r.id && (
-                        <tr className="border-b border-stone-100 bg-stone-50/50">
-                          <td colSpan={6} className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <p className="text-stone-500 text-xs mb-1">Guest names</p>
-                                <p className="text-stone-800 whitespace-pre-line">
-                                  {Array.isArray(r.guest_names) && r.guest_names.length ? r.guest_names.join("\n") : "—"}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-stone-500 text-xs mb-1">Message</p>
-                                <p className="text-stone-800 whitespace-pre-line">{r.message || "—"}</p>
-                              </div>
-                              <div className="md:col-span-2">
-                                <p className="text-stone-500 text-xs mb-1">Mailing address</p>
-                                <p className="text-stone-800 whitespace-pre-line">{r.address || "—"}</p>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {rsvps.length === 0 && <p className="text-center text-stone-500 py-8">No RSVPs yet.</p>}
-          </>
-        )}
-
-        {/* ═══ Guest List Tab ═══ */}
-        {tab === "guests" && (
-          <>
             {/* Add guest form */}
             <form onSubmit={handleAddGuest} className="flex flex-wrap gap-3 mb-6 items-end">
               <div className="flex-1 min-w-[140px]">
@@ -595,132 +456,173 @@ export default function AdminPage() {
               </button>
             </form>
 
-            {/* Send All button */}
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="mb-6 flex gap-6 flex-wrap items-center">
               <span className="text-sm text-stone-600">
-                <strong>{guests.length}</strong> guest{guests.length !== 1 ? "s" : ""} · <strong>{guests.filter((g) => g.invite_sent).length}</strong> sent · <strong>{unsentCount}</strong> unsent
+                Invited: <strong>{overviewRows.length}</strong>
               </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-                    const url = `${base}/rsvp`;
-                    const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
-                    const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}\n\nWebsite password: ${pw}`;
-                    navigator.clipboard.writeText(msg).then(() => {
-                      setCopiedId("open-en");
-                      setTimeout(() => setCopiedId(null), 2000);
-                    });
-                  }}
-                  className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
-                >
-                  {copiedId === "open-en" ? "Copied!" : "Copy Open RSVP Link (EN)"}
-                </button>
-                <button
-                  onClick={() => {
-                    const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-                    const url = `${base}/rsvp`;
-                    const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
-                    const msg = `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}\n\n网站密码：${pw}`;
-                    navigator.clipboard.writeText(msg).then(() => {
-                      setCopiedId("open-zh");
-                      setTimeout(() => setCopiedId(null), 2000);
-                    });
-                  }}
-                  className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
-                >
-                  {copiedId === "open-zh" ? "已复制！" : "Copy Open RSVP Link (中文)"}
-                </button>
-                <button
-                  onClick={handleSendAll}
-                  disabled={sendAllLoading || unsentCount === 0}
-                  className="px-4 py-2 rounded-md bg-stone-800 text-white text-sm hover:bg-stone-700 disabled:opacity-60"
-                >
-                  {sendAllLoading ? "Sending…" : `Send All Unsent (${unsentCount})`}
-                </button>
-              </div>
+              <span className="text-sm text-stone-600">
+                Attending: <strong>{overviewRows.filter((r) => r.status === "attending").length}</strong> responses
+              </span>
+              <span className="text-sm text-stone-600">
+                Total guests: <strong>{overviewRows.reduce((s, r) => s + r.attendingCount, 0)}</strong>
+              </span>
+              <button
+                onClick={() => {
+                  const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                  const url = `${base}/rsvp`;
+                  const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                  const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}\n\nWebsite password: ${pw}`;
+                  navigator.clipboard.writeText(msg).then(() => {
+                    setCopiedId("open-en");
+                    setTimeout(() => setCopiedId(null), 2000);
+                  });
+                }}
+                className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
+              >
+                {copiedId === "open-en" ? "Copied!" : "Copy Open RSVP (EN)"}
+              </button>
+              <button
+                onClick={() => {
+                  const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                  const url = `${base}/rsvp`;
+                  const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                  const msg = `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}\n\n网站密码：${pw}`;
+                  navigator.clipboard.writeText(msg).then(() => {
+                    setCopiedId("open-zh");
+                    setTimeout(() => setCopiedId(null), 2000);
+                  });
+                }}
+                className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
+              >
+                {copiedId === "open-zh" ? "已复制！" : "Copy Open RSVP (中文)"}
+              </button>
+              <button
+                onClick={handleSendAll}
+                disabled={sendAllLoading || unsentCount === 0}
+                className="px-4 py-2 rounded-md bg-stone-800 text-white text-sm hover:bg-stone-700 disabled:opacity-60"
+              >
+                {sendAllLoading ? "Sending…" : `Send All Unsent (${unsentCount})`}
+              </button>
+              <button
+                onClick={exportToCsv}
+                className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-100"
+              >
+                Export to CSV
+              </button>
             </div>
-
-            {/* Guest table */}
-            {guestsLoading ? (
-              <p className="text-center text-stone-500 py-8">Loading guests…</p>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-stone-200 bg-stone-50">
-                      <th className="p-3 font-medium text-stone-700">Name</th>
-                      <th className="p-3 font-medium text-stone-700">Email</th>
-                      <th className="p-3 font-medium text-stone-700">Lang</th>
-                      <th className="p-3 font-medium text-stone-700">Status</th>
-                      <th className="p-3 font-medium text-stone-700">Sent</th>
-                      <th className="p-3 font-medium text-stone-700"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {guests.map((g) => (
-                      <tr key={g.id} className="border-b border-stone-100">
-                        <td className="p-3">{g.name?.trim() || <span className="text-stone-400 italic">Blank invitation</span>}</td>
-                        <td className="p-3">{g.email || <span className="text-stone-400 italic">No email</span>}</td>
-                        <td className="p-3">{g.locale === "zh" ? "中文" : "EN"}</td>
+            <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-stone-200 bg-stone-50">
+                    <th className="p-3 font-medium text-stone-700">Guest</th>
+                    <th className="p-3 font-medium text-stone-700">Email</th>
+                    <th className="p-3 font-medium text-stone-700">Invite Sent</th>
+                    <th className="p-3 font-medium text-stone-700">Response</th>
+                    <th className="p-3 font-medium text-stone-700"># Invited</th>
+                    <th className="p-3 font-medium text-stone-700"># Attending</th>
+                    <th className="p-3 font-medium text-stone-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewRows.map((row) => (
+                    <React.Fragment key={row.id}>
+                      <tr
+                        className={`border-b border-stone-100 hover:bg-stone-50 ${(row.message || row.address || row.guestNames.length) ? "cursor-pointer" : ""}`}
+                        onClick={() => (row.message || row.address || row.guestNames.length) ? setExpandedOverview(expandedOverview === row.id ? null : row.id) : undefined}
+                      >
+                        <td className="p-3">{row.name}</td>
+                        <td className="p-3 text-stone-600">{row.email}</td>
+                        <td className="p-3">{row.inviteSent ? "Yes" : "No"}</td>
                         <td className="p-3">
-                          {g.invite_sent ? (
-                            <span className="text-green-600 font-medium">Sent</span>
+                          {row.status === "attending" ? (
+                            <span className="text-green-600 font-medium">✓ Attending</span>
+                          ) : row.status === "declined" ? (
+                            <span className="text-red-600">✗ Declined</span>
                           ) : (
-                            <span className="text-orange-500">Not sent</span>
+                            <span className="text-stone-400">— Not responded</span>
                           )}
                         </td>
-                        <td className="p-3 text-stone-500">
-                          {g.invite_sent_at ? new Date(g.invite_sent_at).toLocaleDateString() : "—"}
-                        </td>
-                        <td className="p-3 flex gap-3 flex-wrap">
+                        <td className="p-3">{row.invitedCount}</td>
+                        <td className="p-3">{row.attendingCount}</td>
+                        <td className="p-3 flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                          {row.guest && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                                  const url = `${base}/?token=${encodeURIComponent(row.guest!.rsvp_token)}&lang=${row.guest!.locale}`;
+                                  const name = row.guest!.name?.trim();
+                                  const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                                  const baseMsg = name
+                                    ? (row.guest!.locale === "zh"
+                                      ? `嗨 ${name}！诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
+                                      : `Hi ${name}! You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`)
+                                    : (row.guest!.locale === "zh"
+                                      ? `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
+                                      : `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`);
+                                  const msg = row.guest!.locale === "zh"
+                                    ? `${baseMsg}\n\n网站密码：${pw}`
+                                    : `${baseMsg}\n\nWebsite password: ${pw}`;
+                                  navigator.clipboard.writeText(msg).then(() => {
+                                    setCopiedId(row.id);
+                                    setTimeout(() => setCopiedId(null), 2000);
+                                  });
+                                }}
+                                className="text-xs text-emerald-600 hover:text-emerald-800"
+                              >
+                                {copiedId === row.id ? "Copied!" : "Copy Link"}
+                              </button>
+                              <button
+                                onClick={() => handleSendInvites([row.guestId!])}
+                                disabled={sendingIds.has(row.guestId!)}
+                                className="text-xs text-blue-500 hover:text-blue-700 disabled:opacity-50"
+                              >
+                                {sendingIds.has(row.guestId!) ? "Sending…" : row.inviteSent ? "Resend" : "Send"}
+                              </button>
+                            </>
+                          )}
                           <button
-                            onClick={() => {
-                              const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-                              const url = `${base}/?token=${encodeURIComponent(g.rsvp_token)}&lang=${g.locale}`;
-                              const name = g.name?.trim();
-                              const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
-                              const baseMsg = name
-                                ? (g.locale === "zh"
-                                  ? `嗨 ${name}！诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
-                                  : `Hi ${name}! You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`)
-                                : (g.locale === "zh"
-                                  ? `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
-                                  : `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`);
-                              const msg = g.locale === "zh"
-                                ? `${baseMsg}\n\n网站密码：${pw}`
-                                : `${baseMsg}\n\nWebsite password: ${pw}`;
-                              navigator.clipboard.writeText(msg).then(() => {
-                                setCopiedId(g.id);
-                                setTimeout(() => setCopiedId(null), 2000);
-                              });
-                            }}
-                            className="text-xs text-emerald-600 hover:text-emerald-800 transition-colors"
-                          >
-                            {copiedId === g.id ? "Copied!" : "Copy Link"}
-                          </button>
-                          <button
-                            onClick={() => handleSendInvites([g.id])}
-                            disabled={sendingIds.has(g.id)}
-                            className="text-xs text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50"
-                          >
-                            {sendingIds.has(g.id) ? "Sending…" : g.invite_sent ? "Resend" : "Send"}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteGuest(g.id, g.name?.trim() || "Blank invitation")}
-                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                            onClick={() => handleDeleteOverviewRow(row)}
+                            className="text-xs text-red-400 hover:text-red-600"
                           >
                             Delete
                           </button>
+                          {(row.message || row.address || row.guestNames.length) && (
+                            <span className="text-xs text-stone-400">{expandedOverview === row.id ? "▲" : "▼"}</span>
+                          )}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                      {expandedOverview === row.id && (row.message || row.address || row.guestNames.length) && (
+                        <tr className="border-b border-stone-100 bg-stone-50/50">
+                          <td colSpan={7} className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-stone-500 text-xs mb-1">Guest names</p>
+                                <p className="text-stone-800 whitespace-pre-line">
+                                  {row.guestNames.length ? row.guestNames.join("\n") : "—"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-stone-500 text-xs mb-1">Message</p>
+                                <p className="text-stone-800 whitespace-pre-line">{row.message || "—"}</p>
+                              </div>
+                              <div className="md:col-span-2">
+                                <p className="text-stone-500 text-xs mb-1">Mailing address</p>
+                                <p className="text-stone-800 whitespace-pre-line">{row.address || "—"}</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {overviewRows.length === 0 && (
+              <p className="text-center text-stone-500 py-8">No guests yet. Add a guest above.</p>
             )}
-            {!guestsLoading && guests.length === 0 && (
-              <p className="text-center text-stone-500 py-8">No guests added yet.</p>
+            </>
             )}
           </>
         )}
