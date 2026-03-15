@@ -461,7 +461,8 @@ export default function AdminPage() {
                   onClick={() => {
                     const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                     const url = `${base}/rsvp`;
-                    const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`;
+                    const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                    const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}\n\nWebsite password: ${pw}`;
                     navigator.clipboard.writeText(msg).then(() => {
                       setCopiedId("open");
                       setTimeout(() => setCopiedId(null), 2000);
@@ -519,13 +520,17 @@ export default function AdminPage() {
                               const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                               const url = `${base}/?token=${encodeURIComponent(g.rsvp_token)}&lang=${g.locale}`;
                               const name = g.name?.trim();
-                              const msg = name
+                              const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                              const baseMsg = name
                                 ? (g.locale === "zh"
                                   ? `嗨 ${name}！诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
                                   : `Hi ${name}! You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`)
                                 : (g.locale === "zh"
                                   ? `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}`
                                   : `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}`);
+                              const msg = g.locale === "zh"
+                                ? `${baseMsg}\n\n网站密码：${pw}`
+                                : `${baseMsg}\n\nWebsite password: ${pw}`;
                               navigator.clipboard.writeText(msg).then(() => {
                                 setCopiedId(g.id);
                                 setTimeout(() => setCopiedId(null), 2000);
