@@ -146,12 +146,12 @@ function RsvpPageInner() {
   useEffect(() => {
     if (step !== "done") return;
     if (redirectCount <= 0) {
-      router.push("/");
+      window.location.href = "/";
       return;
     }
     const t = setTimeout(() => setRedirectCount((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  }, [step, redirectCount, router]);
+  }, [step, redirectCount]);
 
   if (loadingGuest) {
     return (
