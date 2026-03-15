@@ -116,7 +116,7 @@ export default function RegistryPage() {
               </a>
             )}
 
-            {/* Card via Stripe Checkout — second */}
+            {/* Card via Stripe Checkout */}
             <button
               onClick={handleCardCheckout}
               disabled={loading}
@@ -137,17 +137,6 @@ export default function RegistryPage() {
               </a>
             )}
 
-            {/* External gift registry — if configured */}
-            {process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL && (
-              <a
-                href={process.env.NEXT_PUBLIC_GIFT_REGISTRY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full min-h-[44px] py-3 text-sm rounded-lg border border-[var(--border)] text-[var(--muted)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] hover:shadow-md active:scale-[0.97] transition-all duration-200"
-              >
-                {lang.giftRegistry}
-              </a>
-            )}
           </div>
         </div>
       </div>

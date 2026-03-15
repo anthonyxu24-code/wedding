@@ -11,7 +11,7 @@ export async function GET() {
     const supabase = createServerSupabase();
     const { data, error } = await supabase
       .from("rsvps")
-      .select("id, primary_name, email, attending, guest_count, guest_names, message, address, created_at")
+      .select("id, guest_id, primary_name, email, attending, guest_count, guest_names, message, address, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {

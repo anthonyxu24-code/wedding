@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 
 type Rsvp = {
   id: string;
+  guest_id: string | null;
   primary_name: string;
   email: string;
   attending: boolean;
@@ -34,14 +35,27 @@ type Gift = {
   created_at: string;
 };
 
-type Tab = "rsvps" | "guests" | "gifts";
+type Tab = "overview" | "rsvps" | "guests" | "gifts";
+
+type OverviewRow = {
+  id: string;
+  guestId: string | null;
+  name: string;
+  email: string;
+  inviteSent: boolean;
+  status: "attending" | "declined" | "not_responded";
+  invitedCount: number;
+  attendingCount: number;
+  message: string | null;
+  address: string | null;
+};
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<Tab>("rsvps");
+  const [tab, setTab] = useState<Tab>("overview");
 
   // RSVP state
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
@@ -101,7 +115,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated && tab === "guests" && guests.length === 0) {
+    if (authenticated && (tab === "guests" || tab === "overview") && guests.length === 0) {
       fetchGuests();
     }
   }, [authenticated, tab, guests.length, fetchGuests]);
@@ -291,6 +305,62 @@ export default function AdminPage() {
   const totalGuests = attending.reduce((sum, r) => sum + (r.guest_count || 1), 0);
   const unsentCount = guests.filter((g) => !g.invite_sent).length;
 
+  const rsvpByGuestId = new Map(rsvps.filter((r) => r.guest_id).map((r) => [r.guest_id!, r]));
+  const overviewRows: OverviewRow[] = [
+    ...guests.map((g): OverviewRow => {
+      const r = rsvpByGuestId.get(g.id);
+      const status: OverviewRow["status"] = r ? (r.attending ? "attending" : "declined") : "not_responded";
+      return {
+        id: g.id,
+        guestId: g.id,
+        name: g.name?.trim() || "Blank invitation",
+        email: g.email || "—",
+        inviteSent: g.invite_sent,
+        status,
+        invitedCount: 1,
+        attendingCount: r?.attending ? r.guest_count : 0,
+        message: r?.message ?? null,
+        address: r?.address ?? null,
+      };
+    }),
+    ...rsvps
+      .filter((r) => !r.guest_id)
+      .map((r): OverviewRow => ({
+        id: r.id,
+        guestId: null,
+        name: r.primary_name,
+        email: r.email,
+        inviteSent: false,
+        status: r.attending ? "attending" : "declined",
+        invitedCount: 1,
+        attendingCount: r.attending ? r.guest_count : 0,
+        message: r.message,
+        address: r.address,
+      })),
+  ];
+
+  function exportToCsv() {
+    const headers = ["Name", "Email", "Invite Sent", "Response", "# Invited", "# Attending", "Message", "Address"];
+    const rows = overviewRows.map((r) => [
+      r.name,
+      r.email,
+      r.inviteSent ? "Yes" : "No",
+      r.status === "attending" ? "Attending" : r.status === "declined" ? "Declined" : "Not responded",
+      r.invitedCount,
+      r.attendingCount,
+      (r.message || "").replace(/"/g, '""'),
+      (r.address || "").replace(/"/g, '""'),
+    ]);
+    const csv = [headers.join(","), ...rows.map((row) => row.map((c) => `"${String(c)}"`).join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `wedding-guests-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="min-h-screen bg-stone-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -304,6 +374,14 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 border-b border-stone-200">
+          <button
+            onClick={() => setTab("overview")}
+            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${
+              tab === "overview" ? "border-stone-800 text-stone-800" : "border-transparent text-stone-400 hover:text-stone-600"
+            }`}
+          >
+            Overview
+          </button>
           <button
             onClick={() => setTab("rsvps")}
             className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 transition-colors ${
@@ -329,6 +407,72 @@ export default function AdminPage() {
             Gifts
           </button>
         </div>
+
+        {/* ═══ Overview Tab ═══ */}
+        {tab === "overview" && (
+          <>
+            {guestsLoading && guests.length === 0 ? (
+              <p className="text-center text-stone-500 py-8">Loading…</p>
+            ) : (
+            <>
+            <div className="mb-6 flex gap-6 flex-wrap items-center">
+              <span className="text-sm text-stone-600">
+                Invited: <strong>{overviewRows.length}</strong>
+              </span>
+              <span className="text-sm text-stone-600">
+                Attending: <strong>{overviewRows.filter((r) => r.status === "attending").length}</strong> responses
+              </span>
+              <span className="text-sm text-stone-600">
+                Total guests: <strong>{overviewRows.reduce((s, r) => s + r.attendingCount, 0)}</strong>
+              </span>
+              <button
+                onClick={exportToCsv}
+                className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-100"
+              >
+                Export to CSV
+              </button>
+            </div>
+            <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-stone-200 bg-stone-50">
+                    <th className="p-3 font-medium text-stone-700">Guest</th>
+                    <th className="p-3 font-medium text-stone-700">Email</th>
+                    <th className="p-3 font-medium text-stone-700">Invite Sent</th>
+                    <th className="p-3 font-medium text-stone-700">Response</th>
+                    <th className="p-3 font-medium text-stone-700"># Invited</th>
+                    <th className="p-3 font-medium text-stone-700"># Attending</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewRows.map((r) => (
+                    <tr key={r.id} className="border-b border-stone-100 hover:bg-stone-50">
+                      <td className="p-3">{r.name}</td>
+                      <td className="p-3 text-stone-600">{r.email}</td>
+                      <td className="p-3">{r.inviteSent ? "Yes" : "No"}</td>
+                      <td className="p-3">
+                        {r.status === "attending" ? (
+                          <span className="text-green-600 font-medium">✓ Attending</span>
+                        ) : r.status === "declined" ? (
+                          <span className="text-red-600">✗ Declined</span>
+                        ) : (
+                          <span className="text-stone-400">— Not responded</span>
+                        )}
+                      </td>
+                      <td className="p-3">{r.invitedCount}</td>
+                      <td className="p-3">{r.attendingCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {overviewRows.length === 0 && (
+              <p className="text-center text-stone-500 py-8">No guests yet. Add guests in the Guest List tab.</p>
+            )}
+            </>
+            )}
+          </>
+        )}
 
         {/* ═══ RSVPs Tab ═══ */}
         {tab === "rsvps" && (
@@ -464,13 +608,28 @@ export default function AdminPage() {
                     const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
                     const msg = `You're invited to Cindy & Anthony's wedding on April 10, 2026 in Kyoto. RSVP here: ${url}\n\nWebsite password: ${pw}`;
                     navigator.clipboard.writeText(msg).then(() => {
-                      setCopiedId("open");
+                      setCopiedId("open-en");
                       setTimeout(() => setCopiedId(null), 2000);
                     });
                   }}
                   className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
                 >
-                  {copiedId === "open" ? "Copied!" : "Copy Open RSVP Link"}
+                  {copiedId === "open-en" ? "Copied!" : "Copy Open RSVP Link (EN)"}
+                </button>
+                <button
+                  onClick={() => {
+                    const base = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+                    const url = `${base}/rsvp`;
+                    const pw = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "Hagabooga";
+                    const msg = `诚挚邀请您参加 Cindy & Anthony 的婚礼，2026年4月10日，京都。请在此回复：${url}\n\n网站密码：${pw}`;
+                    navigator.clipboard.writeText(msg).then(() => {
+                      setCopiedId("open-zh");
+                      setTimeout(() => setCopiedId(null), 2000);
+                    });
+                  }}
+                  className="px-4 py-2 rounded-md border border-stone-300 text-stone-700 text-sm hover:bg-stone-50"
+                >
+                  {copiedId === "open-zh" ? "已复制！" : "Copy Open RSVP Link (中文)"}
                 </button>
                 <button
                   onClick={handleSendAll}
@@ -613,6 +772,7 @@ export default function AdminPage() {
                   className="px-3 py-2 text-sm border border-stone-200 rounded-md focus:outline-none focus:border-stone-400"
                 >
                   <option value="venmo">Venmo</option>
+                  <option value="zelle">Zelle</option>
                   <option value="stripe">Stripe</option>
                   <option value="other">Other</option>
                 </select>
