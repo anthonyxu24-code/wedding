@@ -114,6 +114,9 @@ export const t: Record<Locale, Record<string, string>> = {
     stayGuesthouses: "Guesthouses in Higashiyama / Gion",
     stayGuesthousesDesc:
       "Walkable to the venue and great for exploring Kyoto.",
+    stayHyatt: "Hyatt Regency Kyoto",
+    stayHyattDesc:
+      "29,000 Hyatt points per night and very close to the venue.",
     stayOsaka: "Staying in Osaka",
     stayOsakaDesc:
       "Osaka has a wider range of affordable hotels, especially around Namba, Shinsaibashi, or Umeda. The JR train from Osaka Station to Kyoto Station takes about 30 minutes and costs around ¥580 (~$4). A good option if you're also planning to explore Osaka during your trip.",
@@ -220,6 +223,9 @@ export const t: Record<Locale, Record<string, string>> = {
     stayGuesthouses: "东山/祇园民宿",
     stayGuesthousesDesc:
       "步行可达会场，方便探索京都。",
+    stayHyatt: "京都凯悦酒店",
+    stayHyattDesc:
+      "每晚29,000点凯悦积分，离会场非常近。",
     stayOsaka: "住在大阪",
     stayOsakaDesc:
       "大阪有更多经济实惠的酒店选择，尤其是难波、心斋桥和梅田一带。从大阪站到京都站乘坐JR约30分钟，票价约¥580（约$4）。如果行程中还想逛逛大阪，这是个不错的选择。",

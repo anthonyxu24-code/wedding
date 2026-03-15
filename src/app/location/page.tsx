@@ -119,6 +119,7 @@ export default function LocationPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StayCard title={lang.stayVenue} description={lang.stayVenueDesc} />
+            <StayCard title={lang.stayHyatt} description={lang.stayHyattDesc} />
             <StayCard title={lang.stayKyotoStation} description={lang.stayKyotoStationDesc} />
             <StayCard title={lang.stayGuesthouses} description={lang.stayGuesthousesDesc} />
             <StayCard title={lang.stayOsaka} description={lang.stayOsakaDesc} />
